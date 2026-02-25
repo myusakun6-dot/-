@@ -12,6 +12,10 @@
       href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap"
       rel="stylesheet"
     />
+    <style>
+      /* Failsafe: if style.css fails to load, keep hidden elements hidden. */
+      .hidden { display: none !important; }
+    </style>
     <link rel="stylesheet" href="style.css?v=20260224-72" />
   </head>
   <body>
@@ -92,6 +96,7 @@
             <button id="homeCreateExamBtn" class="ghost">模試を作る</button>
             <button id="homeStartMemorizeBtn" class="ghost">暗記を始める</button>
             <button id="homeOpenPrintBtn" class="ghost">印刷する</button>
+            <button id="homeSeedDemoBtn" class="ghost">デモデータ投入</button>
           </div>
         </div>
         <div class="homeGrid">
@@ -405,7 +410,7 @@
 
     </main>
 
-    <script src="app.js?v=20260224-72" defer></script>
+    <script src="app.js?v=20260224-74" defer></script>
     <div id="toastContainer" class="toastContainer" aria-live="polite" aria-atomic="true"></div>
     <div id="finishConfirmModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="finishConfirmTitle">
       <div class="modalCard">

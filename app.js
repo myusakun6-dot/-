@@ -91,6 +91,7 @@ const els = {
   homeCreateExamBtn: document.getElementById("homeCreateExamBtn"),
   homeStartMemorizeBtn: document.getElementById("homeStartMemorizeBtn"),
   homeOpenPrintBtn: document.getElementById("homeOpenPrintBtn"),
+  homeSeedDemoBtn: document.getElementById("homeSeedDemoBtn"),
   homeStatQuestions: document.getElementById("homeStatQuestions"),
   homeStatGenres: document.getElementById("homeStatGenres"),
   homeStatExams: document.getElementById("homeStatExams"),
@@ -962,6 +963,9 @@ els.homeStartMemorizeBtn?.addEventListener("click", () => {
 });
 els.homeOpenPrintBtn?.addEventListener("click", () => {
   switchTab("print");
+});
+els.homeSeedDemoBtn?.addEventListener("click", () => {
+  runWithButton(els.homeSeedDemoBtn, "投入中...", loadDemoData);
 });
 els.editorSubTabs.forEach((tab) => {
   tab.addEventListener("click", () => switchEditorView(tab.dataset.editorView));
@@ -4179,42 +4183,42 @@ function renderUxGuide() {
   const active = getActiveExam();
   const picked = active ? active.questionIds.length : 0;
 
-  let msg = "NEXT STEP: 操作を選んで進めてください。";
+  let msg = "NEXT STEP: 使う機能を選んでください。";
   if (tab === "editor") {
     if (!state.questions.length) {
-      msg = "NEXT STEP: 「作成 > 問題作成」で問題を1問追加してください。";
+      msg = "NEXT STEP: 問題を1問追加してください。";
     } else if (state.editingQuestionId) {
-      msg = "NEXT STEP: 編集内容を確認して「問題を更新」か「編集をキャンセル」を選んでください。";
+      msg = "NEXT STEP: 更新するか、編集をキャンセルしてください。";
     } else {
-      msg = "NEXT STEP: 問題追加を続けるか、模試タブで出題セットを作成できます。";
+      msg = "NEXT STEP: 問題追加を続けるか、模試作成へ進んでください。";
     }
   } else if (tab === "home") {
-    msg = "NEXT STEP: ホームから「問題を作る」「模試を作る」「暗記を始める」を選べます。";
+    msg = "NEXT STEP: 問題作成・模試作成・暗記開始を選べます。";
   } else if (tab === "exam") {
     if (!active) {
       msg = "NEXT STEP: 模試を新規作成してください。";
     } else if (!els.examListView.classList.contains("hidden")) {
-      msg = "NEXT STEP: 「新規作成」か「編集」で模試を整え、一覧の「受験開始」で解答します。";
+      msg = "NEXT STEP: 新規作成または編集後、一覧から受験開始します。";
     } else if (!els.examBuilderView.classList.contains("hidden")) {
       msg =
         picked === 0
-          ? "NEXT STEP: ジャンルを選んで「選択中ジャンルを丸ごと追加」または個別チェックで問題を入れてください。"
-          : `NEXT STEP: 問題を${picked}問選択中です。「模試を作成」で保存し、一覧から受験開始できます。`;
+          ? "NEXT STEP: ジャンル追加か個別選択で問題を入れてください。"
+          : `NEXT STEP: ${picked}問を選択中です。模試を作成して保存してください。`;
     } else if (!els.examSolveView.classList.contains("hidden")) {
       msg = state.running
-        ? "NEXT STEP: 回答を進めて「終了して採点」を押してください。"
-        : "NEXT STEP: 結果を確認するか「模試作成へ戻る」で問題構成を調整してください。";
+        ? "NEXT STEP: 回答して、最後に終了して採点してください。"
+        : "NEXT STEP: 結果確認か、模試作成へ戻って調整してください。";
     }
   } else if (tab === "memorize") {
     msg = !state.memorize.started
-      ? "NEXT STEP: 「暗記開始」を押して回答→答え表示の流れで進めてください。"
+      ? "NEXT STEP: 暗記開始を押してください。"
       : state.memorize.finished
-        ? "NEXT STEP: 暗記結果を確認し、必要なら再度「暗記開始」でやり直せます。"
-        : "NEXT STEP: 回答を入力して「回答して答えを見る」、最後に「終了して結果表示」を押してください。";
+        ? "NEXT STEP: 結果を確認し、必要なら再開してください。"
+        : "NEXT STEP: 回答後に答えを表示し、最後に結果表示してください。";
   } else if (tab === "print") {
-    msg = "NEXT STEP: 「問題用 / 解答用」を選んで「印刷する」を押してください。";
+    msg = "NEXT STEP: 問題用/解答用を選び、印刷してください。";
   } else if (tab === "billing") {
-    msg = "NEXT STEP: 無料のまま使うか、広告オフを選んでプランを決めてください。";
+    msg = "NEXT STEP: 無料利用か広告オフを選んでください。";
   }
 
   els.uxGuide.textContent = msg;
