@@ -29,11 +29,11 @@
 - 友達同士で問題を作って出し合いたい
 - 本番形式の練習と暗記を1つのアプリで回したい
 
-## 5. Support / Legal URLs（要入力）
-- Support URL: [要入力] 例: https://example.com/support
+## 5. Support / Legal URLs
+- Support URL: https://myusakun6-dot.github.io/-/
 - Marketing URL (optional): [任意]
-- Terms of Use URL: [要入力]（terms.htmlを公開したURL）
-- Privacy Policy URL: [要入力]（privacy.htmlを公開したURL）
+- Terms of Use URL: https://myusakun6-dot.github.io/-/terms.html
+- Privacy Policy URL: https://myusakun6-dot.github.io/-/privacy.html
 
 ## 6. In-App Purchase IDs（要入力）
 - Monthly (100 JPY): com.matsuoyusaku.mockmaker.adfree.monthly
@@ -43,7 +43,7 @@
 - Contact First Name: [要入力]
 - Contact Last Name: [要入力]
 - Contact Phone: [要入力]
-- Contact Email: [要入力]
+- Contact Email: my.studio.app2026@gmail.com
 - Demo Account Required: いいえ（ローカル利用中心）
 - Review Notes:
   - 本アプリは学習用の問題作成・模試・暗記アプリです。
