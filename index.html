@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f2937" />
+    <title>自作模試メーカー</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css?v=20260224-72" />
+  </head>
+  <body>
+    <div class="backdrop"></div>
+
+    <header class="topbar">
+      <div class="brandBlock">
+        <div class="brandEmblem" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <rect x="8" y="5" width="24" height="34" rx="4" stroke="currentColor" stroke-width="2" />
+            <path d="M14 14H26M14 20H26M14 26H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <circle cx="33" cy="32" r="8" stroke="currentColor" stroke-width="2" />
+            <path d="M29 32.5L32 35L37 29.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="brandText">
+          <p class="eyebrow">MOCK EXAM STUDIO</p>
+          <h1>自作模試メーカー</h1>
+          <p id="saveStateText" class="saveStateText" aria-live="polite">保存状態: この端末に自動保存されます</p>
+          <p id="dailyQuote" class="dailyQuote" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="topbarActions">
+        <button id="settingsBtn" class="ghost iconBtn" aria-label="設定" aria-haspopup="dialog" aria-controls="settingsModal">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M10.7 3.4L9.9 5.3C9.4 5.5 8.9 5.8 8.4 6.1L6.4 5.8L5.3 7.7L6.6 9.2C6.5 9.8 6.5 10.4 6.6 11L5.3 12.5L6.4 14.4L8.4 14.1C8.9 14.4 9.4 14.7 9.9 14.9L10.7 16.8H13.3L14.1 14.9C14.6 14.7 15.1 14.4 15.6 14.1L17.6 14.4L18.7 12.5L17.4 11C17.5 10.4 17.5 9.8 17.4 9.2L18.7 7.7L17.6 5.8L15.6 6.1C15.1 5.8 14.6 5.5 14.1 5.3L13.3 3.4H10.7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <circle cx="12" cy="10.1" r="2.6" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </button>
+        <button id="installBtn" class="ghost" hidden>ホームに追加</button>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="モード切替" role="tablist">
+      <button id="tab-home" data-tab="home" class="tab active" role="tab" aria-selected="true" aria-controls="home" tabindex="0">
+        <span class="tabIcon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 10.5L12 4L20 10.5V20H4V10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 20V13H15V20" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="tabLabel">ホーム</span>
+      </button>
+      <button id="tab-editor" data-tab="editor" class="tab" role="tab" aria-selected="false" aria-controls="editor" tabindex="-1">
+        <span class="tabIcon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 20H8L18 10L14 6L4 16V20Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12.8 7.2L16.8 11.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <span class="tabLabel">作成</span>
+      </button>
+      <button id="tab-exam" data-tab="exam" class="tab" role="tab" aria-selected="false" aria-controls="exam" tabindex="-1">
+        <span class="tabIcon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="14" height="16" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 9H16M8 13H16M8 17H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <span class="tabLabel">模試</span>
+      </button>
+      <button id="tab-memorize" data-tab="memorize" class="tab" role="tab" aria-selected="false" aria-controls="memorize" tabindex="-1">
+        <span class="tabIcon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="6" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="9" y="4" width="11" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/></svg>
+        </span>
+        <span class="tabLabel">暗記</span>
+      </button>
+      <button id="tab-print" data-tab="print" class="tab" role="tab" aria-selected="false" aria-controls="print" tabindex="-1">
+        <span class="tabIcon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M7 9V4H17V9" stroke="currentColor" stroke-width="1.8"/><rect x="5" y="10" width="14" height="7" rx="2" stroke="currentColor" stroke-width="1.8"/><rect x="7" y="14" width="10" height="6" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>
+        </span>
+        <span class="tabLabel">印刷</span>
+      </button>
+    </nav>
+    <section id="uxGuide" class="uxGuide"></section>
+
+    <main>
+      <section id="home" class="panel active" role="tabpanel" aria-labelledby="tab-home">
+        <div class="card homeHeroCard">
+          <h2>学習ホーム</h2>
+          <p class="muted">続きから再開するか、次の学習を選んでください。</p>
+          <div class="actions">
+            <button id="homeResumeBtn" class="homeMainCta">続きから再開</button>
+          </div>
+          <div class="homePrimaryActions">
+            <button id="homeCreateQuestionBtn" class="ghost">問題を作る</button>
+            <button id="homeCreateExamBtn" class="ghost">模試を作る</button>
+            <button id="homeStartMemorizeBtn" class="ghost">暗記を始める</button>
+            <button id="homeOpenPrintBtn" class="ghost">印刷する</button>
+          </div>
+        </div>
+        <div class="homeGrid">
+          <div class="card">
+            <h3>最近の模試</h3>
+            <ul id="homeRecentExamsList" class="homeRecentList"></ul>
+          </div>
+          <div class="card">
+            <h3>最近の結果</h3>
+            <ul id="homeRecentHistoryList" class="homeRecentList"></ul>
+          </div>
+        </div>
+        <div class="card homeSummaryCard">
+          <h3>学習サマリー</h3>
+          <ul class="homeStatsList">
+            <li><span>問題数</span><strong id="homeStatQuestions">0問</strong></li>
+            <li><span>ジャンル数</span><strong id="homeStatGenres">0件</strong></li>
+            <li><span>模試数</span><strong id="homeStatExams">0件</strong></li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="editor" class="panel" role="tabpanel" aria-labelledby="tab-editor">
+        <div class="editorSubTabs segTabs" role="tablist" aria-label="作成メニュー">
+          <button id="editor-subtab-question" class="editorSubTab segTab active" data-editor-view="question" role="tab" aria-selected="true" aria-controls="editorQuestionView" tabindex="0">問題作成</button>
+          <button id="editor-subtab-genre" class="editorSubTab segTab" data-editor-view="genre" role="tab" aria-selected="false" aria-controls="editorGenreView" tabindex="-1">ジャンル管理</button>
+        </div>
+
+        <div id="editorQuestionView" class="editorView active" role="tabpanel" aria-labelledby="editor-subtab-question">
+          <div class="card">
+            <h2>問題を追加</h2>
+            <label for="questionGenre">ジャンル</label>
+            <select id="questionGenre"></select>
+            <label for="questionText">問題文</label>
+            <textarea id="questionText" rows="3" placeholder="例: 次の計算をしなさい"></textarea>
+            <label for="questionType">形式</label>
+            <select id="questionType">
+              <option value="mcq">4択</option>
+              <option value="fill">穴埋め</option>
+              <option value="text">記述</option>
+            </select>
+
+            <div id="mcqInputs">
+              <label for="mcqLabelMode">選択肢ラベル</label>
+              <select id="mcqLabelMode">
+                <option value="alpha">ABC</option>
+                <option value="numeric">123</option>
+              </select>
+              <label>選択肢（A〜D）</label>
+              <div class="choiceGrid">
+                <input id="mcqOptionA" type="text" placeholder="A: 選択肢を入力" />
+                <input id="mcqOptionB" type="text" placeholder="B: 選択肢を入力" />
+                <input id="mcqOptionC" type="text" placeholder="C: 選択肢を入力" />
+                <input id="mcqOptionD" type="text" placeholder="D: 選択肢を入力" />
+              </div>
+              <label id="mcqAnswerLabel" for="mcqAnswer">正答（A-D）</label>
+              <select id="mcqAnswer">
+                <option value="1">A</option>
+                <option value="2">B</option>
+                <option value="3">C</option>
+                <option value="4">D</option>
+              </select>
+            </div>
+
+            <div id="fillInputs" class="hidden">
+              <label for="fillAnswer">正答（完全一致）</label>
+              <input id="fillAnswer" type="text" placeholder="例: 42" />
+              <div id="fillAuthorPreview" class="fillAuthorPreview muted">
+                穴埋め作成プレビューはここに表示されます。
+              </div>
+            </div>
+
+            <div id="textInputs" class="hidden">
+              <label for="textAnswer">模範解答</label>
+              <textarea id="textAnswer" rows="3"></textarea>
+            </div>
+
+            <label for="questionExplanation">解説（任意）</label>
+            <textarea id="questionExplanation" rows="2"></textarea>
+
+            <div class="actions twoCol">
+              <button id="addQuestionBtn">問題を追加</button>
+              <button id="clearAllBtn" class="danger">全削除</button>
+              <button id="cancelEditQuestionBtn" class="ghost hidden">編集をキャンセル</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="editorGenreView" class="editorView" role="tabpanel" aria-labelledby="editor-subtab-genre">
+          <div class="card">
+            <h2>ジャンル管理</h2>
+            <p class="muted">ジャンルを選ぶと、問題一覧を絞り込みつつそのジャンルで問題作成できます。</p>
+            <div class="genreAddRow">
+              <label for="genreNameInput" class="srOnly">ジャンル名</label>
+              <input id="genreNameInput" type="text" placeholder="例: 英語長文 / 数学I / 古文" />
+              <button id="addGenreBtn" class="ghost">ジャンル追加</button>
+            </div>
+            <div id="genreChips" class="genreChips"></div>
+            <p class="muted">現在のジャンル: <strong id="activeGenreLabel">すべて</strong></p>
+            <button id="toggleGenreQuestionListBtn" class="ghost">問題一覧を表示</button>
+          </div>
+          <div id="genreQuestionListCard" class="card hidden">
+            <h2>問題一覧</h2>
+            <p class="muted">上でジャンルを選ぶと、この一覧が絞り込まれます。</p>
+            <label for="questionSearchInput" class="srOnly">問題一覧検索</label>
+            <input id="questionSearchInput" type="text" placeholder="問題一覧を検索（問題文・ジャンル）" />
+            <ol id="questionList"></ol>
+            <h3>データ管理</h3>
+            <div class="actions threeCol">
+              <button id="seedDemoBtn" class="ghost">デモデータ投入</button>
+              <button id="exportDataBtn" class="ghost">エクスポート</button>
+              <label class="ghost fileBtn">
+                インポート
+                <input id="importDataInput" type="file" accept="application/json" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="exam" class="panel" role="tabpanel" aria-labelledby="tab-exam">
+        <div class="card">
+          <div id="examStepIndicator" class="examStepIndicator" aria-label="模試ステップ">
+            <span data-step="list" class="active">1. 一覧</span>
+            <span data-step="builder">2. 作成</span>
+            <span data-step="solve">3. 解答</span>
+          </div>
+          <div id="examListView">
+            <div class="examHeadRow">
+              <div>
+                <h2>模試</h2>
+                <p class="muted">作成した模試の一覧です。選んで編集・受験できます。</p>
+              </div>
+              <div class="examHeadActions">
+                <button id="newExamOpenBtn">新規作成</button>
+                <button id="importSharedExamBtn" class="ghost">共有コード取込</button>
+              </div>
+            </div>
+            <div class="examFilterRow">
+              <label for="examSearchInput" class="srOnly">模試検索</label>
+              <input id="examSearchInput" type="text" placeholder="模試を検索（タイトル）" />
+              <select id="examSortSelect">
+                <option value="updated_desc">更新日が新しい順</option>
+                <option value="updated_asc">更新日が古い順</option>
+                <option value="title_asc">タイトル昇順</option>
+                <option value="title_desc">タイトル降順</option>
+                <option value="questions_desc">問題数が多い順</option>
+                <option value="questions_asc">問題数が少ない順</option>
+              </select>
+            </div>
+            <ul id="examList" class="examList"></ul>
+          </div>
+
+          <div id="examBuilderView" class="hidden">
+            <div class="examTop">
+              <h2>模試作成</h2>
+              <button id="backToExamListBtn" class="ghost">一覧へ戻る</button>
+            </div>
+            <div class="examCreateRow">
+              <label for="examTitleInput" class="srOnly">模試タイトル</label>
+              <input id="examTitleInput" type="text" placeholder="模試タイトルを入力（例: 2026春 本番想定①）" />
+              <button id="saveExamTitleBtn" class="ghost hidden">設定保存</button>
+            </div>
+            <div class="examCreateRow">
+              <label for="examTimeLimitInput" class="srOnly">制限時間（分）</label>
+              <input id="examTimeLimitInput" type="number" min="0" step="1" placeholder="制限時間（分, 0=無制限）" />
+              <span class="muted">0で無制限</span>
+            </div>
+            <p class="muted">編集中: <strong id="activeExamTitle">-</strong></p>
+            <div class="examBuilderGrid">
+              <section class="examSection">
+                <h3>ジャンルから追加</h3>
+                <div id="examGenreList" class="genreChips"></div>
+                <button id="addWholeGenreBtn" class="ghost">選択中ジャンルを丸ごと追加</button>
+                <p class="muted" id="selectedGenreText">ジャンルを選択すると問題を表示します。</p>
+              </section>
+
+              <section class="examSection">
+                <h3>問題を個別追加</h3>
+                <p id="examSelectionSummary" class="muted">選択中: 0問</p>
+                <label class="pickerToggle">
+                  <input id="examSelectedOnlyToggle" type="checkbox" />
+                  <span>選択済みだけ表示</span>
+                </label>
+                <div class="actions twoCol">
+                  <button id="pickVisibleAllBtn" class="ghost">表示中を全選択</button>
+                  <button id="unpickVisibleAllBtn" class="ghost">表示中を全解除</button>
+                </div>
+                <div id="examQuestionPicker" class="examQuestionPicker"></div>
+              </section>
+            </div>
+
+            <div class="actions">
+              <button id="startExamBtn">模試を作成</button>
+            </div>
+          </div>
+
+          <div id="examSolveView" class="hidden">
+            <div class="examTop">
+              <h2>問題解答</h2>
+              <button id="backToBuilderBtn" class="ghost">模試作成へ戻る</button>
+            </div>
+            <div id="timer">00:00</div>
+            <div class="progressWrap" aria-label="解答進捗">
+              <div id="examProgressBar"></div>
+            </div>
+            <p id="examProgressText" class="muted">0 / 0 解答済み</p>
+            <p id="examUnansweredText" class="muted">未回答: 0問</p>
+            <article id="examQuestion" class="examQuestion">
+              <p>一覧の「受験開始」を押すとここに問題が表示されます。</p>
+            </article>
+            <div class="actions fourCol examSolveActions">
+              <button id="prevBtn" class="ghost">前へ</button>
+              <button id="nextBtn" class="ghost">次へ</button>
+              <button id="finishBtn" class="danger">終了して採点</button>
+            </div>
+
+            <h3>採点結果</h3>
+            <p id="scoreSummary">まだ採点していません。</p>
+            <ul id="resultList"></ul>
+
+            <h3>履歴</h3>
+            <label for="historySearchInput" class="srOnly">履歴検索</label>
+            <input id="historySearchInput" type="text" placeholder="履歴を検索（模試名・問題文・回答）" />
+            <ul id="historyList"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="memorize" class="panel" role="tabpanel" aria-labelledby="tab-memorize">
+        <div class="card">
+          <h2>暗記モード</h2>
+          <p class="muted">回答した後に答えを表示します。模試またはジャンル単位で出題できます。</p>
+          <label for="memorizeSourceType">暗記するジャンルを選ぶ</label>
+          <select id="memorizeSourceType">
+            <option value="exam">模試</option>
+            <option value="genre">ジャンル</option>
+          </select>
+          <label id="memorizeTargetSelectLabel" for="memorizeTargetSelect">対象を選択</label>
+          <select id="memorizeTargetSelect"></select>
+          <p class="muted">対象: <strong id="memorizeTargetTitle">-</strong></p>
+          <div class="actions twoCol">
+            <button id="startMemorizeBtn">暗記開始</button>
+            <button id="finishMemorizeBtn" class="ghost">終了して結果表示</button>
+          </div>
+          <div id="memorizeList" class="memorizeList"></div>
+          <h3>暗記結果</h3>
+          <p id="memorizeSummary">まだ開始していません。</p>
+          <ul id="memorizeResultList"></ul>
+        </div>
+      </section>
+
+      <section id="print" class="panel" role="tabpanel" aria-labelledby="tab-print">
+        <div class="card">
+          <h2>印刷プレビュー（問題冊子）</h2>
+          <p>A4で本番風に出力します。</p>
+          <div class="actions twoCol">
+            <button id="printModeQuestionBtn" class="ghost">問題用</button>
+            <button id="printModeAnswerBtn" class="ghost">解答用</button>
+          </div>
+          <details class="printAdvanced">
+            <summary>詳細設定</summary>
+            <div class="printSettings">
+            <label for="printPresetSelect">印刷プリセット</label>
+            <div class="actions twoCol">
+              <select id="printPresetSelect">
+                <option value="custom">カスタム</option>
+                <option value="exam">本番用（問題冊子）</option>
+                <option value="review">見直し用（解答冊子）</option>
+              </select>
+              <button id="applyPrintPresetBtn" class="ghost">プリセット適用</button>
+            </div>
+            <label for="printExamSelect">印刷対象の模試</label>
+            <select id="printExamSelect"></select>
+            <label for="printCustomTitle">印刷タイトル（任意）</label>
+            <input id="printCustomTitle" type="text" placeholder="空欄なら模試タイトルを使用" />
+            <label class="printCheck">
+              <input id="printShowNameDate" type="checkbox" checked />
+              <span>氏名・受験日欄を表示</span>
+            </label>
+            <label class="printCheck">
+              <input id="printShowGenre" type="checkbox" />
+              <span>各問題にジャンルを表示</span>
+            </label>
+            <label class="printCheck">
+              <input id="printIncludeExplanation" type="checkbox" checked />
+              <span>解答用に解説を表示</span>
+            </label>
+            <label class="printCheck">
+              <input id="printIncludeAnswerSheet" type="checkbox" />
+              <span>問題用にマークシートページを追加</span>
+            </label>
+            <label class="printCheck">
+              <input id="printShowFooter" type="checkbox" />
+              <span>フッターに出力日時を表示</span>
+            </label>
+            <p id="printProHint" class="fieldHint muted"></p>
+            <label for="printQuestionsPerPage">1ページあたり問題数（目安）</label>
+            <select id="printQuestionsPerPage">
+              <option value="8">8問</option>
+              <option value="10">10問</option>
+              <option value="12">12問</option>
+            </select>
+            </div>
+          </details>
+          <p class="muted">現在の印刷: <strong id="printModeLabel">問題用</strong></p>
+          <button id="printBtn">印刷する</button>
+          <div id="printPreview" class="printPreview"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <script src="app.js?v=20260224-72" defer></script>
+    <div id="toastContainer" class="toastContainer" aria-live="polite" aria-atomic="true"></div>
+    <div id="finishConfirmModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="finishConfirmTitle">
+      <div class="modalCard">
+        <h3 id="finishConfirmTitle">終了確認</h3>
+        <p id="finishConfirmText">終了しますか？</p>
+        <div class="actions twoCol">
+          <button id="finishCancelBtn" class="ghost">戻る</button>
+          <button id="finishConfirmBtn" class="danger">終了して採点</button>
+        </div>
+      </div>
+    </div>
+    <div id="dangerConfirmModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="dangerConfirmTitle">
+      <div class="modalCard">
+        <h3 id="dangerConfirmTitle">削除確認</h3>
+        <p id="dangerConfirmText">削除しますか？</p>
+        <ol id="dangerConfirmList" class="dangerConfirmList hidden"></ol>
+        <div class="actions twoCol">
+          <button id="dangerConfirmNoBtn" class="ghost">いいえ</button>
+          <button id="dangerConfirmYesBtn" class="danger">はい</button>
+        </div>
+      </div>
+    </div>
+    <div id="inputPromptModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="inputPromptTitle">
+      <div class="modalCard">
+        <h3 id="inputPromptTitle">入力</h3>
+        <p id="inputPromptText">入力してください。</p>
+        <label for="inputPromptField" class="srOnly">入力欄</label>
+        <input id="inputPromptField" type="text" />
+        <p id="inputPromptHint" class="fieldHint muted"></p>
+        <div class="actions twoCol">
+          <button id="inputPromptCancelBtn" class="ghost">キャンセル</button>
+          <button id="inputPromptOkBtn">OK</button>
+        </div>
+      </div>
+    </div>
+    <div id="optionPickerModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="optionPickerTitle">
+      <div class="modalCard">
+        <h3 id="optionPickerTitle">選択</h3>
+        <div id="optionPickerList" class="optionPickerList"></div>
+        <div class="actions">
+          <button id="optionPickerCloseBtn" class="ghost">閉じる</button>
+        </div>
+      </div>
+    </div>
+    <div id="shareModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
+      <div class="modalCard">
+        <button id="shareCloseTopBtn" class="modalCloseTop ghost" aria-label="閉じる">×</button>
+        <h3 id="shareModalTitle">模試を共有</h3>
+        <p id="shareExamTitle" class="muted">-</p>
+        <div class="shareSubTabs segTabs" role="tablist" aria-label="共有方式">
+          <button id="shareCodeTabBtn" class="ghost segTab active" role="tab" aria-selected="true" aria-controls="shareCodeView" tabindex="0">コード共有</button>
+          <button id="shareLinkTabBtn" class="ghost segTab" role="tab" aria-selected="false" aria-controls="shareLinkView" tabindex="-1">リンク共有</button>
+        </div>
+        <div id="shareCodeView" class="shareView active" role="tabpanel" aria-labelledby="shareCodeTabBtn">
+          <label for="shareCodeText">共有コード</label>
+          <textarea id="shareCodeText" rows="3" readonly></textarea>
+          <label for="sharePasswordInput">共有パスワード（任意4桁）</label>
+          <input id="sharePasswordInput" type="password" inputmode="numeric" maxlength="4" placeholder="例: 1234（空欄なら不要）" />
+          <p id="sharePasswordHint" class="fieldHint muted" aria-live="polite">4桁の数字で設定できます。空欄ならパスワードなし。</p>
+          <div class="actions twoCol">
+            <button id="shareCopyCodeBtn" class="ghost">コードをコピー</button>
+            <button id="shareQuickLinkBtn" class="ghost">24時間リンクを作成</button>
+          </div>
+          <button id="shareNativeCodeBtn" class="ghost">共有シートで共有</button>
+          <div class="settingsGroup">
+            <p class="settingsGroupTitle">共有オプション</p>
+            <label class="printCheck">
+              <input id="shareIncludeInsight" type="checkbox" />
+              <span>最新の学習サマリーを共有コードに含める</span>
+            </label>
+            <label for="shareNoteInput">共有メモ（任意）</label>
+            <input id="shareNoteInput" type="text" placeholder="例: 次回までに理科を重点復習" />
+            <p id="shareProHint" class="fieldHint muted"></p>
+          </div>
+          <button id="shareQrBtn" class="qrImageButton ghost" type="button" aria-label="共有QRコードを拡大表示">
+            <img id="shareQrImage" alt="共有QRコード" class="shareQrImage" />
+          </button>
+        </div>
+        <div id="shareLinkView" class="shareView" role="tabpanel" aria-labelledby="shareLinkTabBtn">
+          <label for="shareExpireSelect">期限付きリンク</label>
+          <div class="actions twoCol">
+            <select id="shareExpireSelect">
+              <option value="24">24時間</option>
+              <option value="168">7日</option>
+              <option value="720">30日</option>
+            </select>
+            <button id="shareGenerateLinkBtn" class="ghost">リンク作成</button>
+          </div>
+          <input id="shareLinkText" type="text" readonly placeholder="リンクを作成するとここに表示" />
+          <button id="shareCopyLinkBtn" class="ghost">リンクをコピー</button>
+          <button id="shareNativeLinkBtn" class="ghost">共有シートで共有</button>
+          <button id="shareLinkQrBtn" class="qrImageButton ghost" type="button" aria-label="共有リンクQRコードを拡大表示">
+            <img id="shareLinkQrImage" alt="共有リンクQRコード" class="shareQrImage" />
+          </button>
+        </div>
+        <button id="shareCloseBtn" class="ghost">閉じる</button>
+      </div>
+    </div>
+    <div id="settingsModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+      <div class="modalCard">
+        <h3 id="settingsModalTitle">設定</h3>
+        <div class="settingsGroup">
+        <p class="settingsGroupTitle">表示</p>
+        <label for="fontSizeSelect">文字サイズ</label>
+        <select id="fontSizeSelect">
+          <option value="system">システムに合わせる</option>
+          <option value="small">小</option>
+          <option value="medium">標準</option>
+          <option value="large">大</option>
+        </select>
+        <label class="printCheck">
+          <input id="simpleUiToggle" type="checkbox" />
+          <span>シンプル表示（装飾を減らす）</span>
+        </label>
+        <label class="printCheck">
+          <input id="highContrastToggle" type="checkbox" />
+          <span>高コントラスト表示</span>
+        </label>
+        <label class="printCheck">
+          <input id="hideDailyQuoteToggle" type="checkbox" />
+          <span>一言を非表示にする</span>
+        </label>
+        </div>
+        <div class="settingsGroup">
+          <p class="settingsGroupTitle">学習</p>
+          <label class="printCheck">
+            <input id="autoNextMcqToggle" type="checkbox" />
+            <span>模試4択で選択後に自動で次へ進む</span>
+          </label>
+          <label for="memorizeOrderSelect">暗記の出題順</label>
+          <select id="memorizeOrderSelect">
+            <option value="original">作成順</option>
+            <option value="random">ランダム</option>
+          </select>
+        </div>
+        <div class="settingsGroup">
+          <p class="settingsGroupTitle">共有・通知</p>
+          <label for="defaultShareExpireSelect">共有リンクの既定有効期限</label>
+          <select id="defaultShareExpireSelect">
+            <option value="24">24時間</option>
+            <option value="168">7日</option>
+            <option value="720">30日</option>
+          </select>
+          <label for="toastDurationSelect">通知表示時間</label>
+          <select id="toastDurationSelect">
+            <option value="short">短い</option>
+            <option value="standard">標準</option>
+            <option value="long">長い</option>
+          </select>
+        </div>
+        <div class="settingsGroup">
+          <p class="settingsGroupTitle">プラン</p>
+          <p class="muted">現在の状態: <strong id="billingCurrentState">無料（広告あり）</strong></p>
+          <p class="muted">広告表示: <strong id="billingAdState">あり</strong></p>
+
+          <div class="billingCard billingCardFree">
+            <p class="muted">無料プラン（広告あり）</p>
+            <p id="billingRewardedUntil" class="muted">広告なし残り時間: なし</p>
+            <button id="watchRewardedAdBtn" class="ghost">広告を見て24時間広告なし</button>
+          </div>
+
+          <div class="billingGrid">
+            <article class="billingCard">
+              <p class="muted">広告オフ</p>
+              <p><strong>月額 100円 / 年額 900円</strong></p>
+              <div class="actions twoCol">
+                <button id="buyAdfreeMonthlyBtn" class="ghost">月額で広告オフ</button>
+                <button id="buyAdfreeYearlyBtn" class="ghost">年額で広告オフ</button>
+              </div>
+              <p id="adfreeStatusText" class="muted">未契約</p>
+            </article>
+          </div>
+
+          <div class="actions twoCol">
+            <button id="restorePurchaseBtn" class="ghost">購入を復元</button>
+            <button id="billingResetBtn" class="ghost">テスト状態リセット</button>
+          </div>
+        </div>
+        <div class="settingsGroup">
+          <p class="settingsGroupTitle">規約・ポリシー</p>
+          <div class="actions">
+            <a class="ghost" href="./terms.html" target="_blank" rel="noopener noreferrer">利用規約</a>
+            <a class="ghost" href="./privacy.html" target="_blank" rel="noopener noreferrer">プライバシーポリシー</a>
+          </div>
+        </div>
+        <div class="settingsGroup">
+          <p class="settingsGroupTitle">サポート</p>
+          <div class="actions">
+            <a id="contactLinkBtn" class="ghost" href="mailto:support@mockmaker.app?subject=%E8%87%AA%E4%BD%9C%E6%A8%A1%E8%A9%A6%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B">お問い合わせ</a>
+            <button id="copySupportTemplateBtn" class="ghost">問い合わせテンプレをコピー</button>
+            <button id="openReleaseChecklistBtn" class="ghost">リリース前チェック</button>
+          </div>
+          <p class="muted">不具合連絡時は、端末名・OS・再現手順を含めてください。</p>
+        </div>
+        <div class="actions twoCol">
+          <button id="saveSettingsBtn">保存</button>
+          <button id="closeSettingsBtn" class="ghost">閉じる</button>
+        </div>
+      </div>
+    </div>
+    <div id="rewardedAdModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="rewardedAdTitle">
+      <div class="modalCard">
+        <h3 id="rewardedAdTitle">広告を再生中</h3>
+        <p id="rewardedAdText">最後まで視聴すると24時間広告なしになります。</p>
+        <div class="progressWrap" aria-label="広告再生進捗">
+          <div id="rewardedAdProgressBar"></div>
+        </div>
+        <p id="rewardedAdRemain" class="muted">残り 00:05</p>
+        <button id="cancelRewardedAdBtn" class="ghost">視聴を中止する</button>
+      </div>
+    </div>
+    <div id="qrFullscreenModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="qrFullscreenTitle">
+      <div class="qrFullscreenCard">
+        <h3 id="qrFullscreenTitle">QRコード拡大表示</h3>
+        <img id="qrFullscreenImage" alt="拡大QRコード" class="qrFullscreenImage" />
+        <button id="qrFullscreenCloseBtn" class="ghost">閉じる</button>
+      </div>
+    </div>
+    <div id="releaseChecklistModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="releaseChecklistTitle">
+      <div class="modalCard">
+        <h3 id="releaseChecklistTitle">リリース前チェック</h3>
+        <p class="muted">App Store提出前に最低限確認する項目です。</p>
+        <ul id="releaseChecklistList" class="releaseChecklistList"></ul>
+        <div class="actions twoCol">
+          <button id="copyReleaseChecklistBtn" class="ghost">チェック結果をコピー</button>
+          <button id="closeReleaseChecklistBtn">閉じる</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
