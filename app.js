@@ -91,7 +91,6 @@ const els = {
   homeCreateExamBtn: document.getElementById("homeCreateExamBtn"),
   homeStartMemorizeBtn: document.getElementById("homeStartMemorizeBtn"),
   homeOpenPrintBtn: document.getElementById("homeOpenPrintBtn"),
-  homeSeedDemoBtn: document.getElementById("homeSeedDemoBtn"),
   homeStatQuestions: document.getElementById("homeStatQuestions"),
   homeStatGenres: document.getElementById("homeStatGenres"),
   homeStatExams: document.getElementById("homeStatExams"),
@@ -132,7 +131,6 @@ const els = {
   addQuestionBtn: document.getElementById("addQuestionBtn"),
   cancelEditQuestionBtn: document.getElementById("cancelEditQuestionBtn"),
   clearAllBtn: document.getElementById("clearAllBtn"),
-  seedDemoBtn: document.getElementById("seedDemoBtn"),
   questionSearchInput: document.getElementById("questionSearchInput"),
   exportDataBtn: document.getElementById("exportDataBtn"),
   importDataInput: document.getElementById("importDataInput"),
@@ -964,9 +962,6 @@ els.homeStartMemorizeBtn?.addEventListener("click", () => {
 els.homeOpenPrintBtn?.addEventListener("click", () => {
   switchTab("print");
 });
-els.homeSeedDemoBtn?.addEventListener("click", () => {
-  runWithButton(els.homeSeedDemoBtn, "投入中...", loadDemoData);
-});
 els.editorSubTabs.forEach((tab) => {
   tab.addEventListener("click", () => switchEditorView(tab.dataset.editorView));
   tab.addEventListener("keydown", (event) => {
@@ -1119,9 +1114,6 @@ els.memorizeTargetSelect?.addEventListener("change", () => {
     state.memorize.finished = false;
   }
   renderMemorize();
-});
-els.seedDemoBtn.addEventListener("click", () => {
-  runWithButton(els.seedDemoBtn, "投入中...", loadDemoData);
 });
 els.questionSearchInput.addEventListener("input", () => {
   state.questionSearch = String(els.questionSearchInput.value || "").trim().toLowerCase();
@@ -3322,7 +3314,7 @@ function renderPrintPreview() {
       return `
         <article class="print-sheet examStyleSheet density-${state.printQuestionsPerPage}">
           <header class="print-head">
-            <h3>${escapeHtml(heading)}</h3>
+            ${pageIdx === 0 ? `<h3>${escapeHtml(heading)}</h3>` : ""}
             ${pageIdx === 0 ? headerLine : ""}
           </header>
           <div class="print-body">${items}</div>
@@ -3336,7 +3328,7 @@ function renderPrintPreview() {
     answerSheetEnabled
       ? `
       <article class="print-sheet examStyleSheet density-${state.printQuestionsPerPage}">
-        <header class="print-head"><h3>${escapeHtml(`${headingBase} マークシート`)}</h3></header>
+        <header class="print-head"></header>
         <div class="print-body">
           <section class="print-q">
             <ul class="print-options">
