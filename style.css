@@ -1616,18 +1616,23 @@ button.danger {
 }
 
 .print-sheet.compact-cols-3 .print-body {
-  column-count: 3;
-  column-gap: 1.4em;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35em 1.1em;
+  align-content: start;
 }
 
 .print-sheet.compact-cols-5 .print-body {
-  column-count: 5;
-  column-gap: 1em;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.3em 0.8em;
+  align-content: start;
 }
 
 .print-sheet.compact-cols-3 .print-q-compact,
 .print-sheet.compact-cols-5 .print-q-compact {
-  break-inside: avoid-column;
+  margin: 0;
+  break-inside: avoid;
   page-break-inside: avoid;
 }
 
