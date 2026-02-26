@@ -231,14 +231,8 @@ const els = {
   highContrastToggle: document.getElementById("highContrastToggle"),
   hideDailyQuoteToggle: document.getElementById("hideDailyQuoteToggle"),
   contactLinkBtn: document.getElementById("contactLinkBtn"),
-  copySupportTemplateBtn: document.getElementById("copySupportTemplateBtn"),
-  openReleaseChecklistBtn: document.getElementById("openReleaseChecklistBtn"),
   saveSettingsBtn: document.getElementById("saveSettingsBtn"),
   closeSettingsBtn: document.getElementById("closeSettingsBtn"),
-  releaseChecklistModal: document.getElementById("releaseChecklistModal"),
-  releaseChecklistList: document.getElementById("releaseChecklistList"),
-  copyReleaseChecklistBtn: document.getElementById("copyReleaseChecklistBtn"),
-  closeReleaseChecklistBtn: document.getElementById("closeReleaseChecklistBtn"),
   rewardedAdModal: document.getElementById("rewardedAdModal"),
   rewardedAdProgressBar: document.getElementById("rewardedAdProgressBar"),
   rewardedAdRemain: document.getElementById("rewardedAdRemain"),
@@ -281,7 +275,6 @@ const els = {
   buyAdfreeMonthlyBtn: document.getElementById("buyAdfreeMonthlyBtn"),
   buyAdfreeYearlyBtn: document.getElementById("buyAdfreeYearlyBtn"),
   restorePurchaseBtn: document.getElementById("restorePurchaseBtn"),
-  billingResetBtn: document.getElementById("billingResetBtn"),
   adfreeStatusText: document.getElementById("adfreeStatusText"),
   installBtn: document.getElementById("installBtn"),
   toastContainer: document.getElementById("toastContainer"),
@@ -351,7 +344,6 @@ function handleModalKeyboard(event) {
     else if (active === els.shareModal) closeShareModal();
     else if (active === els.qrFullscreenModal) closeQrFullscreen();
     else if (active === els.settingsModal) closeSettingsModal();
-    else if (active === els.releaseChecklistModal) closeReleaseChecklistModal();
     else if (active === els.rewardedAdModal) cancelRewardedAdPlayback();
     return;
   }
@@ -1166,9 +1158,6 @@ els.qrFullscreenModal.addEventListener("click", (event) => {
 els.settingsModal.addEventListener("click", (event) => {
   if (event.target === els.settingsModal) closeSettingsModal();
 });
-els.releaseChecklistModal?.addEventListener("click", (event) => {
-  if (event.target === els.releaseChecklistModal) closeReleaseChecklistModal();
-});
 els.rewardedAdModal.addEventListener("click", (event) => {
   if (event.target === els.rewardedAdModal) cancelRewardedAdPlayback();
 });
@@ -1179,28 +1168,6 @@ els.shareModal.addEventListener("click", (event) => {
 document.addEventListener("keydown", handleModalKeyboard);
 els.settingsBtn.addEventListener("click", () => {
   openSettingsModal();
-});
-els.openReleaseChecklistBtn?.addEventListener("click", openReleaseChecklistModal);
-els.closeReleaseChecklistBtn?.addEventListener("click", closeReleaseChecklistModal);
-els.copyReleaseChecklistBtn?.addEventListener("click", () => {
-  copyTextToClipboard(buildReleaseChecklistReport(), "チェック結果をコピーしました");
-});
-els.copySupportTemplateBtn?.addEventListener("click", () => {
-  const template = [
-    "【問い合わせ内容】",
-    "・発生画面:",
-    "・実施した操作:",
-    "・期待した結果:",
-    "・実際の結果:",
-    "・再現手順:",
-    "1. ",
-    "2. ",
-    "3. ",
-    "【利用環境】",
-    `・日時: ${new Date().toLocaleString("ja-JP")}`,
-    `・ユーザーエージェント: ${navigator.userAgent}`,
-  ].join("\n");
-  copyTextToClipboard(template, "問い合わせテンプレをコピーしました");
 });
 els.closeSettingsBtn.addEventListener("click", closeSettingsModal);
 els.saveSettingsBtn.addEventListener("click", () => {
@@ -1262,14 +1229,6 @@ els.restorePurchaseBtn.addEventListener("click", () => {
   runWithButton(els.restorePurchaseBtn, "復元中...", async () => {
     const ok = await restoreAdfreePlan();
     if (!ok) notify("復元できる購入情報が見つかりませんでした。同じApple IDで購入済みか確認して再試行してください。", "info");
-  });
-});
-els.billingResetBtn.addEventListener("click", () => {
-  runWithButton(els.billingResetBtn, "リセット中...", () => {
-    state.billing = { adfreeUntil: 0, proUntil: 0, rewardedAdUntil: 0 };
-    saveBillingState();
-    renderBilling();
-    notify("課金テスト状態をリセットしました", "success");
   });
 });
 
@@ -2223,87 +2182,6 @@ function openSettingsModal() {
 
 function closeSettingsModal() {
   closeModalBase(els.settingsModal);
-}
-
-function getReleaseChecklistItems() {
-  const hasQuestions = state.questions.length > 0;
-  const hasExams = state.exams.some((exam) => exam.questionIds.length > 0);
-  const hasHistory = state.history.length > 0;
-  const hasTerms = true;
-  const hasPrivacy = true;
-  const hasBillingButtons = Boolean(els.buyAdfreeMonthlyBtn && els.buyAdfreeYearlyBtn && els.restorePurchaseBtn);
-  const shareReady = state.exams.some((exam) => exam.questionIds.length > 0);
-  const printReady = state.exams.some((exam) => exam.questionIds.length > 0);
-
-  return [
-    {
-      ok: hasQuestions,
-      label: "問題が1問以上ある",
-      hint: hasQuestions ? "作成済み" : "作成タブで問題を追加してください",
-    },
-    {
-      ok: hasExams,
-      label: "模試が1つ以上作成済み",
-      hint: hasExams ? "作成済み" : "模試タブで問題を追加した模試を保存してください",
-    },
-    {
-      ok: printReady,
-      label: "印刷対象の模試がある",
-      hint: printReady ? "印刷可能" : "模試に問題を追加してください",
-    },
-    {
-      ok: shareReady,
-      label: "共有可能な模試がある",
-      hint: shareReady ? "共有確認可能" : "模試を作成して共有テストしてください",
-    },
-    {
-      ok: hasHistory,
-      label: "受験/暗記の結果履歴がある",
-      hint: hasHistory ? "履歴あり" : "1回実行して結果画面を確認してください",
-    },
-    {
-      ok: hasBillingButtons,
-      label: "課金導線（購入/復元）が表示される",
-      hint: hasBillingButtons ? "導線あり" : "設定 > プラン表示を確認してください",
-    },
-    {
-      ok: hasTerms && hasPrivacy,
-      label: "利用規約 / プライバシーポリシーが開ける",
-      hint: "設定 > 規約・ポリシー から確認",
-    },
-  ];
-}
-
-function buildReleaseChecklistReport() {
-  const lines = getReleaseChecklistItems().map((item) => {
-    return `${item.ok ? "[OK]" : "[CHECK]"} ${item.label} - ${item.hint}`;
-  });
-  return `自作模試メーカー リリース前チェック\n${lines.join("\n")}`;
-}
-
-function renderReleaseChecklist() {
-  if (!els.releaseChecklistList) return;
-  const items = getReleaseChecklistItems();
-  els.releaseChecklistList.innerHTML = items
-    .map(
-      (item) => `
-      <li>
-        <strong class="${item.ok ? "ok" : "warn"}">${item.ok ? "OK" : "要確認"}</strong>
-        ${escapeHtml(item.label)}<br />
-        <span class="muted">${escapeHtml(item.hint)}</span>
-      </li>
-    `
-    )
-    .join("");
-}
-
-function openReleaseChecklistModal() {
-  renderReleaseChecklist();
-  openModal(els.releaseChecklistModal, els.closeReleaseChecklistBtn || els.copyReleaseChecklistBtn);
-}
-
-function closeReleaseChecklistModal() {
-  closeModalBase(els.releaseChecklistModal);
 }
 
 function openQrFullscreen(src) {

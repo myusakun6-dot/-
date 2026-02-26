@@ -408,7 +408,7 @@
 
     </main>
 
-    <script src="app.js?v=20260224-78" defer></script>
+    <script src="app.js?v=20260224-79" defer></script>
     <div id="toastContainer" class="toastContainer" aria-live="polite" aria-atomic="true"></div>
     <div id="finishConfirmModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="finishConfirmTitle">
       <div class="modalCard">
@@ -584,7 +584,6 @@
 
           <div class="actions twoCol">
             <button id="restorePurchaseBtn" class="ghost">購入を復元</button>
-            <button id="billingResetBtn" class="ghost">テスト状態リセット</button>
           </div>
         </div>
         <div class="settingsGroup">
@@ -598,8 +597,6 @@
           <p class="settingsGroupTitle">サポート</p>
           <div class="actions">
             <a id="contactLinkBtn" class="ghost" href="mailto:support@mockmaker.app?subject=%E8%87%AA%E4%BD%9C%E6%A8%A1%E8%A9%A6%E3%83%A1%E3%83%BC%E3%82%AB%E3%83%BC%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B">お問い合わせ</a>
-            <button id="copySupportTemplateBtn" class="ghost">問い合わせテンプレをコピー</button>
-            <button id="openReleaseChecklistBtn" class="ghost">リリース前チェック</button>
           </div>
           <p class="muted">不具合連絡時は、端末名・OS・再現手順を含めてください。</p>
         </div>
@@ -625,17 +622,6 @@
         <h3 id="qrFullscreenTitle">QRコード拡大表示</h3>
         <img id="qrFullscreenImage" alt="拡大QRコード" class="qrFullscreenImage" />
         <button id="qrFullscreenCloseBtn" class="ghost">閉じる</button>
-      </div>
-    </div>
-    <div id="releaseChecklistModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="releaseChecklistTitle">
-      <div class="modalCard">
-        <h3 id="releaseChecklistTitle">リリース前チェック</h3>
-        <p class="muted">App Store提出前に最低限確認する項目です。</p>
-        <ul id="releaseChecklistList" class="releaseChecklistList"></ul>
-        <div class="actions twoCol">
-          <button id="copyReleaseChecklistBtn" class="ghost">チェック結果をコピー</button>
-          <button id="closeReleaseChecklistBtn">閉じる</button>
-        </div>
       </div>
     </div>
   </body>
