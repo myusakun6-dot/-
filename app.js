@@ -3188,10 +3188,15 @@ function renderPrintPreview() {
   const heading = `${headingBase} ${isAnswerMode ? "解答冊子" : "問題冊子"}`;
   const baseChunkSize = Math.max(1, Number(state.printQuestionsPerPage || 10));
   const chunkSize = compactAnswer ? baseChunkSize * compactCols : baseChunkSize;
-  const questionPages = [];
-  for (let i = 0; i < examQuestions.length; i += chunkSize) {
-    questionPages.push(examQuestions.slice(i, i + chunkSize));
-  }
+  const questionPages = compactAnswer
+    ? [examQuestions]
+    : (() => {
+        const pages = [];
+        for (let i = 0; i < examQuestions.length; i += chunkSize) {
+          pages.push(examQuestions.slice(i, i + chunkSize));
+        }
+        return pages;
+      })();
   const answerSheetEnabled = !isAnswerMode && state.printIncludeAnswerSheet;
   const totalPages = questionPages.length + (answerSheetEnabled ? 1 : 0);
   const headerLine = state.printShowNameDate
