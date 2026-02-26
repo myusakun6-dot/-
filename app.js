@@ -2704,6 +2704,9 @@ function renderExamBuilder() {
     btn.addEventListener("click", () => {
       state.examBuilderGenre = btn.dataset.builderGenre;
       renderExamBuilder();
+      // ジャンル切替時は、問題一覧の先頭から見えるようにスクロール位置をリセット
+      els.examQuestionPicker.scrollTop = 0;
+      els.examQuestionPicker.scrollIntoView({ block: "start", behavior: "auto" });
     });
   });
 
