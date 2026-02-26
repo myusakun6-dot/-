@@ -1616,17 +1616,17 @@ button.danger {
 }
 
 .print-sheet.compact-cols-3 .print-body {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
   gap: 0.35em 1.1em;
-  align-content: start;
 }
 
 .print-sheet.compact-cols-5 .print-body {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
   gap: 0.3em 0.8em;
-  align-content: start;
 }
 
 .print-sheet.compact-cols-3 .print-q-compact,
@@ -1634,6 +1634,14 @@ button.danger {
   margin: 0;
   break-inside: avoid;
   page-break-inside: avoid;
+}
+
+.print-sheet.compact-cols-3 .print-q-compact {
+  width: calc((100% - 2.2em) / 3);
+}
+
+.print-sheet.compact-cols-5 .print-q-compact {
+  width: calc((100% - 3.2em) / 5);
 }
 
 .print-sheet.compact-cols-3 {
@@ -2011,6 +2019,22 @@ body.simple-ui .card {
   .print-q {
     orphans: 2;
     widows: 2;
+  }
+
+  /* iOS/Safari の印刷エンジン向け: 省スペース列レイアウトを明示 */
+  .print-sheet.compact-cols-3 .print-body,
+  .print-sheet.compact-cols-5 .print-body {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-content: flex-start !important;
+  }
+
+  .print-sheet.compact-cols-3 .print-q-compact {
+    width: calc((100% - 2.2em) / 3) !important;
+  }
+
+  .print-sheet.compact-cols-5 .print-q-compact {
+    width: calc((100% - 3.2em) / 5) !important;
   }
 
   @page {
