@@ -56,6 +56,8 @@ const state = {
   printShowNameDate: true,
   printShowGenre: false,
   printIncludeExplanation: true,
+  printAnswerCompact: false,
+  printAnswerCompactColumns: 1,
   printIncludeAnswerSheet: false,
   printShowFooter: false,
   printQuestionsPerPage: 10,
@@ -260,6 +262,8 @@ const els = {
   printShowNameDate: document.getElementById("printShowNameDate"),
   printShowGenre: document.getElementById("printShowGenre"),
   printIncludeExplanation: document.getElementById("printIncludeExplanation"),
+  printAnswerCompact: document.getElementById("printAnswerCompact"),
+  printAnswerCompactColumns: document.getElementById("printAnswerCompactColumns"),
   printIncludeAnswerSheet: document.getElementById("printIncludeAnswerSheet"),
   printShowFooter: document.getElementById("printShowFooter"),
   printProHint: document.getElementById("printProHint"),
@@ -658,6 +662,8 @@ function savePrintPrefs() {
     printShowNameDate: state.printShowNameDate,
     printShowGenre: state.printShowGenre,
     printIncludeExplanation: state.printIncludeExplanation,
+    printAnswerCompact: state.printAnswerCompact,
+    printAnswerCompactColumns: state.printAnswerCompactColumns,
     printIncludeAnswerSheet: state.printIncludeAnswerSheet,
     printShowFooter: state.printShowFooter,
     printQuestionsPerPage: state.printQuestionsPerPage,
@@ -675,6 +681,9 @@ function initPrintPrefs() {
   state.printShowNameDate = prefs.printShowNameDate !== false;
   state.printShowGenre = Boolean(prefs.printShowGenre);
   state.printIncludeExplanation = prefs.printIncludeExplanation !== false;
+  state.printAnswerCompact = Boolean(prefs.printAnswerCompact);
+  const compactCols = Number(prefs.printAnswerCompactColumns || 1);
+  state.printAnswerCompactColumns = [1, 3, 5].includes(compactCols) ? compactCols : 1;
   state.printIncludeAnswerSheet = Boolean(prefs.printIncludeAnswerSheet);
   state.printShowFooter = Boolean(prefs.printShowFooter);
   const perPage = Number(prefs.printQuestionsPerPage || 10);
@@ -1058,6 +1067,19 @@ els.printShowGenre.addEventListener("change", () => {
 });
 els.printIncludeExplanation.addEventListener("change", () => {
   state.printIncludeExplanation = Boolean(els.printIncludeExplanation.checked);
+  state.printPreset = "custom";
+  savePrintPrefs();
+  renderPrintPreview();
+});
+els.printAnswerCompact?.addEventListener("change", () => {
+  state.printAnswerCompact = Boolean(els.printAnswerCompact.checked);
+  state.printPreset = "custom";
+  savePrintPrefs();
+  renderPrintPreview();
+});
+els.printAnswerCompactColumns?.addEventListener("change", () => {
+  const cols = Number(els.printAnswerCompactColumns.value || 1);
+  state.printAnswerCompactColumns = [1, 3, 5].includes(cols) ? cols : 1;
   state.printPreset = "custom";
   savePrintPrefs();
   renderPrintPreview();
@@ -3097,6 +3119,8 @@ function renderPrintPreview() {
     els.printShowNameDate.disabled = true;
     els.printShowGenre.disabled = true;
     els.printIncludeExplanation.disabled = true;
+    if (els.printAnswerCompact) els.printAnswerCompact.disabled = true;
+    if (els.printAnswerCompactColumns) els.printAnswerCompactColumns.disabled = true;
     if (els.printIncludeAnswerSheet) els.printIncludeAnswerSheet.disabled = true;
     if (els.printShowFooter) els.printShowFooter.disabled = true;
     els.printQuestionsPerPage.disabled = true;
@@ -3118,6 +3142,8 @@ function renderPrintPreview() {
   els.printShowNameDate.disabled = false;
   els.printShowGenre.disabled = false;
   els.printIncludeExplanation.disabled = false;
+  if (els.printAnswerCompact) els.printAnswerCompact.disabled = false;
+  if (els.printAnswerCompactColumns) els.printAnswerCompactColumns.disabled = false;
   if (els.printIncludeAnswerSheet) els.printIncludeAnswerSheet.disabled = false;
   if (els.printShowFooter) els.printShowFooter.disabled = false;
   els.printQuestionsPerPage.disabled = false;
@@ -3127,6 +3153,11 @@ function renderPrintPreview() {
   els.printShowNameDate.checked = state.printShowNameDate;
   els.printShowGenre.checked = state.printShowGenre;
   els.printIncludeExplanation.checked = state.printIncludeExplanation;
+  if (els.printAnswerCompact) els.printAnswerCompact.checked = state.printAnswerCompact;
+  if (els.printAnswerCompactColumns) {
+    const cols = [1, 3, 5].includes(Number(state.printAnswerCompactColumns)) ? Number(state.printAnswerCompactColumns) : 1;
+    els.printAnswerCompactColumns.value = String(cols);
+  }
   if (els.printIncludeAnswerSheet) els.printIncludeAnswerSheet.checked = state.printIncludeAnswerSheet;
   if (els.printShowFooter) els.printShowFooter.checked = state.printShowFooter;
   els.printQuestionsPerPage.value = String(state.printQuestionsPerPage);
@@ -3143,15 +3174,20 @@ function renderPrintPreview() {
   els.printBtn.disabled = false;
 
   const isAnswerMode = state.printMode === "answer";
+  const compactAnswer = isAnswerMode && state.printAnswerCompact;
+  const compactCols = [1, 3, 5].includes(Number(state.printAnswerCompactColumns)) ? Number(state.printAnswerCompactColumns) : 1;
   els.printModeLabel.textContent = isAnswerMode
-    ? `解答用${state.printIncludeExplanation ? "（解説あり）" : "（解説なし）"}`
+    ? compactAnswer
+      ? `解答用（回答のみ・省スペース ${compactCols}列）`
+      : `解答用${state.printIncludeExplanation ? "（解説あり）" : "（解説なし）"}`
     : "問題用";
   els.printModeQuestionBtn.classList.toggle("active", !isAnswerMode);
   els.printModeAnswerBtn.classList.toggle("active", isAnswerMode);
 
   const headingBase = state.printCustomTitle.trim() || exam.title;
   const heading = `${headingBase} ${isAnswerMode ? "解答冊子" : "問題冊子"}`;
-  const chunkSize = Math.max(1, Number(state.printQuestionsPerPage || 10));
+  const baseChunkSize = Math.max(1, Number(state.printQuestionsPerPage || 10));
+  const chunkSize = compactAnswer ? baseChunkSize * compactCols : baseChunkSize;
   const questionPages = [];
   for (let i = 0; i < examQuestions.length; i += chunkSize) {
     questionPages.push(examQuestions.slice(i, i + chunkSize));
@@ -3174,11 +3210,23 @@ function renderPrintPreview() {
             <p><strong>正答</strong> <span class="answerAccent">${escapeHtml(displayAnswerWithOptionText(q, q.answer || "-"))}</span></p>
             ${state.printIncludeExplanation && q.explanation ? `<p><strong>解説</strong> ${escapeHtml(q.explanation)}</p>` : ""}
           `;
+          const compactAnswerBlock = `
+            <p class="print-qtext print-qtextCompact">
+              <span class="print-qnoInline">${idx + 1}.</span><span class="answerAccent">${escapeHtml(displayAnswerWithOptionText(q, q.answer || "-"))}</span>
+            </p>
+          `;
           const genreBlock = state.printShowGenre ? `<p class="print-genre">［${escapeHtml(q.genre || "未分類")}］</p>` : "";
           const questionHtml =
             q.type === "fill"
               ? buildFillMaskedHtml(q.text, q.answer, "<span>（　）</span>")
               : escapeHtml(q.text);
+          if (compactAnswer) {
+            return `
+              <section class="print-q print-q-compact">
+                ${compactAnswerBlock}
+              </section>
+            `;
+          }
           return `
             <section class="print-q">
               ${genreBlock}
@@ -3192,8 +3240,9 @@ function renderPrintPreview() {
         state.printShowFooter
           ? `<footer class="print-meta">出力日時: ${new Date().toLocaleString("ja-JP")} / ${pageIdx + 1} / ${totalPages} ページ</footer>`
           : "";
+      const compactClass = compactAnswer ? ` compact-cols-${compactCols}` : "";
       return `
-        <article class="print-sheet examStyleSheet density-${state.printQuestionsPerPage}">
+        <article class="print-sheet examStyleSheet density-${state.printQuestionsPerPage}${compactClass}">
           <header class="print-head">
             ${pageIdx === 0 ? `<h3>${escapeHtml(heading)}</h3>` : ""}
             ${pageIdx === 0 ? headerLine : ""}
@@ -3247,6 +3296,8 @@ function applyPrintPreset(preset) {
     state.printShowNameDate = true;
     state.printShowGenre = false;
     state.printIncludeExplanation = false;
+    state.printAnswerCompact = false;
+    state.printAnswerCompactColumns = 1;
     state.printIncludeAnswerSheet = false;
     state.printShowFooter = false;
     state.printQuestionsPerPage = 10;
@@ -3256,6 +3307,8 @@ function applyPrintPreset(preset) {
     state.printShowNameDate = false;
     state.printShowGenre = true;
     state.printIncludeExplanation = true;
+    state.printAnswerCompact = false;
+    state.printAnswerCompactColumns = 1;
     state.printIncludeAnswerSheet = false;
     state.printShowFooter = false;
     state.printQuestionsPerPage = 8;

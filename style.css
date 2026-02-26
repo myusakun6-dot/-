@@ -1600,10 +1600,45 @@ button.danger {
   margin: 0 0 2px;
 }
 
+.print-qtextCompact {
+  margin: 0;
+  line-height: 1.25;
+}
+
 .print-qnoInline {
   display: inline;
   font-weight: 700;
   margin-right: 0.25em;
+}
+
+.print-q-compact {
+  margin: 0 0 0.5em;
+}
+
+.print-sheet.compact-cols-3 .print-body {
+  column-count: 3;
+  column-gap: 1.4em;
+}
+
+.print-sheet.compact-cols-5 .print-body {
+  column-count: 5;
+  column-gap: 1em;
+}
+
+.print-sheet.compact-cols-3 .print-q-compact,
+.print-sheet.compact-cols-5 .print-q-compact {
+  break-inside: avoid-column;
+  page-break-inside: avoid;
+}
+
+.print-sheet.compact-cols-3 {
+  font-size: 12px;
+  line-height: 1.24;
+}
+
+.print-sheet.compact-cols-5 {
+  font-size: 10px;
+  line-height: 1.2;
 }
 
 .print-options {
