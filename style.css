@@ -1619,14 +1619,14 @@ button.danger {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  gap: 0.35em 1.1em;
+  gap: 0.35em 0.6em;
 }
 
 .print-sheet.compact-cols-5 .print-body {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
-  gap: 0.3em 0.8em;
+  gap: 0.3em 0.4em;
 }
 
 .print-sheet.compact-cols-3 .print-q-compact,
@@ -1638,16 +1638,16 @@ button.danger {
 
 .print-sheet.compact-cols-3 .print-q-compact {
   box-sizing: border-box;
-  flex: 0 0 33.3333%;
-  max-width: 33.3333%;
-  padding-right: 0.7em;
+  flex: 0 0 calc((100% - 1.2em) / 3);
+  max-width: calc((100% - 1.2em) / 3);
+  padding-right: 0;
 }
 
 .print-sheet.compact-cols-5 .print-q-compact {
   box-sizing: border-box;
-  flex: 0 0 20%;
-  max-width: 20%;
-  padding-right: 0.45em;
+  flex: 0 0 calc((100% - 1.6em) / 5);
+  max-width: calc((100% - 1.6em) / 5);
+  padding-right: 0;
 }
 
 .print-sheet.compact-cols-3 {
@@ -2035,18 +2035,26 @@ body.simple-ui .card {
     align-content: flex-start !important;
   }
 
+  .print-sheet.compact-cols-3 .print-body {
+    gap: 0.35em 0.6em !important;
+  }
+
+  .print-sheet.compact-cols-5 .print-body {
+    gap: 0.3em 0.4em !important;
+  }
+
   .print-sheet.compact-cols-3 .print-q-compact {
     box-sizing: border-box !important;
-    flex: 0 0 33.3333% !important;
-    max-width: 33.3333% !important;
-    padding-right: 0.7em !important;
+    flex: 0 0 calc((100% - 1.2em) / 3) !important;
+    max-width: calc((100% - 1.2em) / 3) !important;
+    padding-right: 0 !important;
   }
 
   .print-sheet.compact-cols-5 .print-q-compact {
     box-sizing: border-box !important;
-    flex: 0 0 20% !important;
-    max-width: 20% !important;
-    padding-right: 0.45em !important;
+    flex: 0 0 calc((100% - 1.6em) / 5) !important;
+    max-width: calc((100% - 1.6em) / 5) !important;
+    padding-right: 0 !important;
   }
 
   /* 省スペース列表示では改ページ制約を弱め、先頭ページの空白化を防ぐ */
