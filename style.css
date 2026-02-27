@@ -2037,6 +2037,21 @@ body.simple-ui .card {
     width: calc((100% - 3.2em) / 5) !important;
   }
 
+  /* 省スペース列表示では改ページ制約を弱め、先頭ページの空白化を防ぐ */
+  .print-sheet.compact-cols-3 .print-head,
+  .print-sheet.compact-cols-5 .print-head {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  .print-sheet.compact-cols-3 .print-q,
+  .print-sheet.compact-cols-5 .print-q {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    orphans: 1;
+    widows: 1;
+  }
+
   @page {
     size: A4;
     margin: 14mm 9mm 14mm;
