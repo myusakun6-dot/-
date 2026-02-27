@@ -1619,18 +1619,35 @@ button.danger {
   min-width: 0;
 }
 
+.printCompactTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.printCompactTable td {
+  vertical-align: top;
+  padding: 0 0.35em 0.35em 0;
+}
+
+.printCompactTable.cols-1 td {
+  width: 100%;
+}
+
+.printCompactTable.cols-3 td {
+  width: 33.3333%;
+}
+
+.printCompactTable.cols-5 td {
+  width: 20%;
+}
+
 .print-sheet.compact-cols-3 .print-body {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 0.35em 0.6em;
+  display: block;
 }
 
 .print-sheet.compact-cols-5 .print-body {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 0.3em 0.4em;
+  display: block;
 }
 
 .print-sheet.compact-cols-3 .print-q-compact,
@@ -2035,17 +2052,7 @@ body.simple-ui .card {
   /* iOS/Safari の印刷エンジン向け: 省スペース列レイアウトを明示 */
   .print-sheet.compact-cols-3 .print-body,
   .print-sheet.compact-cols-5 .print-body {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-content: flex-start !important;
-  }
-
-  .print-sheet.compact-cols-3 .print-body {
-    gap: 0.35em 0.6em !important;
-  }
-
-  .print-sheet.compact-cols-5 .print-body {
-    gap: 0.3em 0.4em !important;
+    display: block !important;
   }
 
   .print-sheet.compact-cols-3 .print-q-compact {

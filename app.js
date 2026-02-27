@@ -3206,42 +3206,48 @@ function renderPrintPreview() {
 
   const pageHtml = questionPages
     .map((pageQuestions, pageIdx) => {
-      const items = pageQuestions
-        .map((q, localIdx) => {
+      let items = "";
+      if (compactAnswer) {
+        const cells = pageQuestions.map((q, localIdx) => {
           const idx = pageIdx * chunkSize + localIdx;
-          const options = q.type === "mcq"
-            ? `<ul class="print-options">${q.options.map((o, i) => `<li>${optionLabel(q, i)} ${escapeHtml(normalizePrintOptionText(o))}</li>`).join("")}</ul>`
-            : "";
-          const answerBlock = `
-            <p><strong>正答</strong> <span class="answerAccent">${escapeHtml(displayAnswerWithOptionText(q, q.answer || "-"))}</span></p>
-            ${state.printIncludeExplanation && q.explanation ? `<p><strong>解説</strong> ${escapeHtml(q.explanation)}</p>` : ""}
-          `;
-          const compactAnswerBlock = `
-            <p class="print-qtext print-qtextCompact">
-              <span class="print-qnoInline">${idx + 1}.</span><span class="answerAccent">${escapeHtml(displayAnswerWithOptionText(q, q.answer || "-"))}</span>
-            </p>
-          `;
-          const genreBlock = state.printShowGenre ? `<p class="print-genre">［${escapeHtml(q.genre || "未分類")}］</p>` : "";
-          const questionHtml =
-            q.type === "fill"
-              ? buildFillMaskedHtml(q.text, q.answer, "<span>（　）</span>")
-              : escapeHtml(q.text);
-          if (compactAnswer) {
+          return `<p class="print-qtext print-qtextCompact"><span class="print-qnoInline">${idx + 1}.</span><span class="answerAccent">${escapeHtml(displayAnswerWithOptionText(q, q.answer || "-"))}</span></p>`;
+        });
+        const rows = [];
+        for (let i = 0; i < cells.length; i += compactCols) {
+          const rowCells = [];
+          for (let col = 0; col < compactCols; col += 1) {
+            const cell = cells[i + col] || "";
+            rowCells.push(`<td class="printCompactCell">${cell}</td>`);
+          }
+          rows.push(`<tr>${rowCells.join("")}</tr>`);
+        }
+        items = `<table class="printCompactTable cols-${compactCols}"><tbody>${rows.join("")}</tbody></table>`;
+      } else {
+        items = pageQuestions
+          .map((q, localIdx) => {
+            const idx = pageIdx * chunkSize + localIdx;
+            const options = q.type === "mcq"
+              ? `<ul class="print-options">${q.options.map((o, i) => `<li>${optionLabel(q, i)} ${escapeHtml(normalizePrintOptionText(o))}</li>`).join("")}</ul>`
+              : "";
+            const answerBlock = `
+              <p><strong>正答</strong> <span class="answerAccent">${escapeHtml(displayAnswerWithOptionText(q, q.answer || "-"))}</span></p>
+              ${state.printIncludeExplanation && q.explanation ? `<p><strong>解説</strong> ${escapeHtml(q.explanation)}</p>` : ""}
+            `;
+            const genreBlock = state.printShowGenre ? `<p class="print-genre">［${escapeHtml(q.genre || "未分類")}］</p>` : "";
+            const questionHtml =
+              q.type === "fill"
+                ? buildFillMaskedHtml(q.text, q.answer, "<span>（　）</span>")
+                : escapeHtml(q.text);
             return `
-              <section class="print-q print-q-compact">
-                ${compactAnswerBlock}
+              <section class="print-q">
+                ${genreBlock}
+                <p class="print-qtext"><span class="print-qnoInline">${idx + 1}.</span>${questionHtml}</p>
+                ${isAnswerMode ? answerBlock : options}
               </section>
             `;
-          }
-          return `
-            <section class="print-q">
-              ${genreBlock}
-              <p class="print-qtext"><span class="print-qnoInline">${idx + 1}.</span>${questionHtml}</p>
-              ${isAnswerMode ? answerBlock : options}
-            </section>
-          `;
-        })
-        .join("");
+          })
+          .join("");
+      }
       const footerHtml =
         state.printShowFooter
           ? `<footer class="print-meta">出力日時: ${new Date().toLocaleString("ja-JP")} / ${pageIdx + 1} / ${totalPages} ページ</footer>`
