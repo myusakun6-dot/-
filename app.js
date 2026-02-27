@@ -3187,15 +3187,17 @@ function renderPrintPreview() {
   const headingBase = state.printCustomTitle.trim() || exam.title;
   const heading = `${headingBase} ${isAnswerMode ? "解答冊子" : "問題冊子"}`;
   const baseChunkSize = Math.max(1, Number(state.printQuestionsPerPage || 10));
-  // 省スペース時は1ページ収容を優先しつつ、Safari印刷で先頭空白化しないよう適度に分割する
-  const chunkSize = compactAnswer ? baseChunkSize * compactCols * 2 : baseChunkSize;
-  const questionPages = (() => {
-    const pages = [];
-    for (let i = 0; i < examQuestions.length; i += chunkSize) {
-      pages.push(examQuestions.slice(i, i + chunkSize));
-    }
-    return pages;
-  })();
+  // 回答のみ省スペースは1シートに集約し、必要な場合のみブラウザ側で自然改ページする
+  const chunkSize = compactAnswer ? examQuestions.length : baseChunkSize;
+  const questionPages = compactAnswer
+    ? [examQuestions]
+    : (() => {
+        const pages = [];
+        for (let i = 0; i < examQuestions.length; i += chunkSize) {
+          pages.push(examQuestions.slice(i, i + chunkSize));
+        }
+        return pages;
+      })();
   const answerSheetEnabled = !isAnswerMode && state.printIncludeAnswerSheet;
   const totalPages = questionPages.length + (answerSheetEnabled ? 1 : 0);
   const headerLine = state.printShowNameDate
