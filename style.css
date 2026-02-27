@@ -1637,11 +1637,17 @@ button.danger {
 }
 
 .print-sheet.compact-cols-3 .print-q-compact {
-  width: calc((100% - 2.2em) / 3);
+  box-sizing: border-box;
+  flex: 0 0 33.3333%;
+  max-width: 33.3333%;
+  padding-right: 0.7em;
 }
 
 .print-sheet.compact-cols-5 .print-q-compact {
-  width: calc((100% - 3.2em) / 5);
+  box-sizing: border-box;
+  flex: 0 0 20%;
+  max-width: 20%;
+  padding-right: 0.45em;
 }
 
 .print-sheet.compact-cols-3 {
@@ -2030,11 +2036,17 @@ body.simple-ui .card {
   }
 
   .print-sheet.compact-cols-3 .print-q-compact {
-    width: calc((100% - 2.2em) / 3) !important;
+    box-sizing: border-box !important;
+    flex: 0 0 33.3333% !important;
+    max-width: 33.3333% !important;
+    padding-right: 0.7em !important;
   }
 
   .print-sheet.compact-cols-5 .print-q-compact {
-    width: calc((100% - 3.2em) / 5) !important;
+    box-sizing: border-box !important;
+    flex: 0 0 20% !important;
+    max-width: 20% !important;
+    padding-right: 0.45em !important;
   }
 
   /* 省スペース列表示では改ページ制約を弱め、先頭ページの空白化を防ぐ */
