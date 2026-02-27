@@ -1603,6 +1603,9 @@ button.danger {
 .print-qtextCompact {
   margin: 0;
   line-height: 1.25;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .print-qnoInline {
@@ -1613,6 +1616,7 @@ button.danger {
 
 .print-q-compact {
   margin: 0 0 0.5em;
+  min-width: 0;
 }
 
 .print-sheet.compact-cols-3 .print-body {
@@ -1634,6 +1638,7 @@ button.danger {
   margin: 0;
   break-inside: avoid;
   page-break-inside: avoid;
+  min-width: 0;
 }
 
 .print-sheet.compact-cols-3 .print-q-compact {
@@ -2048,6 +2053,7 @@ body.simple-ui .card {
     flex: 0 0 calc((100% - 1.2em) / 3) !important;
     max-width: calc((100% - 1.2em) / 3) !important;
     padding-right: 0 !important;
+    min-width: 0 !important;
   }
 
   .print-sheet.compact-cols-5 .print-q-compact {
@@ -2055,6 +2061,13 @@ body.simple-ui .card {
     flex: 0 0 calc((100% - 1.6em) / 5) !important;
     max-width: calc((100% - 1.6em) / 5) !important;
     padding-right: 0 !important;
+    min-width: 0 !important;
+  }
+
+  .print-qtextCompact {
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
   }
 
   /* 省スペース列表示では改ページ制約を弱め、先頭ページの空白化を防ぐ */
