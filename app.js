@@ -3063,7 +3063,11 @@ function renderResult(rows, score, autoTotal, examTitle, endReason = "") {
   };
   const sec = result.elapsedSec;
   const point = typeof result.autoPoint === "number" ? result.autoPoint : toAutoPoint(result.autoScore, result.autoTotal);
-  els.scoreSummary.textContent = `模試: ${result.examTitle} / ${result.endReason || "終了"} / 自動採点: ${result.autoScore} / ${result.autoTotal}問 / 点数: ${formatPointLabel(point)} / 記述自己採点: ${selfDone} / ${selfRows.length}問（○${selfCounts.good} △${selfCounts.middle} ×${selfCounts.bad}） 受験時間: ${formatTime(sec)}`;
+  els.scoreSummary.innerHTML = [
+    `模試: ${escapeHtml(result.examTitle)} / ${escapeHtml(result.endReason || "終了")} / 受験時間: ${escapeHtml(formatTime(sec))}`,
+    `自動採点: ${escapeHtml(String(result.autoScore))} / ${escapeHtml(String(result.autoTotal))}問（${escapeHtml(formatPointLabel(point))}）`,
+    `記述自己採点: ${escapeHtml(String(selfDone))} / ${escapeHtml(String(selfRows.length))}問（○${escapeHtml(String(selfCounts.good))} △${escapeHtml(String(selfCounts.middle))} ×${escapeHtml(String(selfCounts.bad))}）`,
+  ].join("<br />");
   els.resultList.innerHTML = "";
 
   result.rows.forEach((r, idx) => {

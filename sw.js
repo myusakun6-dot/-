@@ -1,4 +1,4 @@
-const CACHE_NAME = "mock-maker-cache-v104";
+const CACHE_NAME = "mock-maker-cache-v105";
 const ASSETS = [
   "./",
   "./index.html",
