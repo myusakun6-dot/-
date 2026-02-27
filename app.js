@@ -3009,6 +3009,7 @@ function finishExam(endReason = "手動終了") {
     endReason,
     autoScore: score,
     autoTotal,
+    autoPoint: toAutoPoint(score, autoTotal),
     elapsedSec: state.elapsedSec,
     rows,
   };
@@ -3018,7 +3019,7 @@ function finishExam(endReason = "手動終了") {
     mode: "exam",
     examId: active ? active.id : "",
     examTitle: active ? active.title : "模試",
-    summary: `${endReason} / 自動採点 ${score}/${autoTotal}問`,
+    summary: `${endReason} / 自動採点 ${score}/${autoTotal}問 / 点数 ${formatPointLabel(toAutoPoint(score, autoTotal))}`,
     rows: rows.map((r, idx) => ({
       no: idx + 1,
       type: typeLabel(r.q.type),
@@ -3031,7 +3032,7 @@ function finishExam(endReason = "手動終了") {
   renderStatus();
   openExamSolve();
   updateExamSolveActions();
-  notify(`採点が完了しました（自動採点 ${score}/${autoTotal}問）`, "success");
+  notify(`採点が完了しました（${score}/${autoTotal}問・${formatPointLabel(toAutoPoint(score, autoTotal))}）`, "success");
 }
 
 function renderResult(rows, score, autoTotal, examTitle, endReason = "") {
@@ -3047,6 +3048,7 @@ function renderResult(rows, score, autoTotal, examTitle, endReason = "") {
       endReason,
       autoScore: score,
       autoTotal,
+      autoPoint: toAutoPoint(score, autoTotal),
       elapsedSec: state.elapsedSec,
       rows,
     };
@@ -3060,7 +3062,8 @@ function renderResult(rows, score, autoTotal, examTitle, endReason = "") {
     bad: selfRows.filter((r) => r.selfGrade === "bad").length,
   };
   const sec = result.elapsedSec;
-  els.scoreSummary.textContent = `模試: ${result.examTitle} / ${result.endReason || "終了"} / 自動採点: ${result.autoScore} / ${result.autoTotal}問 / 記述自己採点: ${selfDone} / ${selfRows.length}問（○${selfCounts.good} △${selfCounts.middle} ×${selfCounts.bad}） 受験時間: ${formatTime(sec)}`;
+  const point = typeof result.autoPoint === "number" ? result.autoPoint : toAutoPoint(result.autoScore, result.autoTotal);
+  els.scoreSummary.textContent = `模試: ${result.examTitle} / ${result.endReason || "終了"} / 自動採点: ${result.autoScore} / ${result.autoTotal}問 / 点数: ${formatPointLabel(point)} / 記述自己採点: ${selfDone} / ${selfRows.length}問（○${selfCounts.good} △${selfCounts.middle} ×${selfCounts.bad}） 受験時間: ${formatTime(sec)}`;
   els.resultList.innerHTML = "";
 
   result.rows.forEach((r, idx) => {
@@ -4184,6 +4187,18 @@ function formatRemainingShort(untilMs) {
   const m = Math.floor((remain % (60 * 60 * 1000)) / (60 * 1000));
   if (h > 0) return `${h}時間${m}分`;
   return `${m}分`;
+}
+
+function toAutoPoint(autoScore, autoTotal) {
+  const total = Number(autoTotal || 0);
+  if (total <= 0) return null;
+  const score = Number(autoScore || 0);
+  return Math.round((score / total) * 1000) / 10;
+}
+
+function formatPointLabel(point) {
+  if (typeof point !== "number" || !Number.isFinite(point)) return "-";
+  return `${point.toFixed(1)}点`;
 }
 
 function getBillingTier() {
