@@ -1980,6 +1980,10 @@ body.simple-ui .card {
     padding: 0;
   }
 
+  main > section {
+    display: none !important;
+  }
+
   #print {
     display: block !important;
     margin: 0;
@@ -2020,8 +2024,15 @@ body.simple-ui .card {
     border: 0;
     border-radius: 0;
     padding: 0;
+    page-break-before: auto;
+    break-before: auto;
     page-break-after: always;
     break-after: page;
+  }
+
+  #printPreview > .print-sheet:first-child {
+    page-break-before: auto !important;
+    break-before: auto !important;
   }
 
   .print-sheet:last-child {
