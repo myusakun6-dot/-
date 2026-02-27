@@ -4108,25 +4108,23 @@ function renderHomeDashboard() {
 
   const recentHistory = state.history.slice(0, 4);
   if (!recentHistory.length) {
-    els.homeRecentHistoryList.innerHTML = "<li class='muted'>結果履歴はまだありません。</li>";
+    els.homeRecentHistoryList.innerHTML = "<p class='muted'>結果履歴はまだありません。</p>";
   } else {
     els.homeRecentHistoryList.innerHTML = recentHistory
       .map(
         (h) => {
           const autoScoreText = getHistoryAutoScoreText(h);
           return `
-      <li>
-        <details class="historyItem">
-          <summary class="historyTab">
-            <span class="historyTabTitle">${escapeHtml(h.examTitle || "-")}</span>
-            <span class="historyTabScore">${h.mode === "exam" ? "正答" : "判定"} ${escapeHtml(autoScoreText)}</span>
-          </summary>
-          <div class="historyDetail">
-            <p class="muted">${h.mode === "exam" ? "模試" : "暗記"} / ${new Date(h.createdAt).toLocaleString("ja-JP")}</p>
-            <p class="muted">${escapeHtml(h.summary || "")}</p>
-          </div>
-        </details>
-      </li>
+      <details class="historyItem">
+        <summary class="historyTab">
+          <span class="historyTabTitle">${escapeHtml(h.examTitle || "-")}</span>
+          <span class="historyTabScore">${h.mode === "exam" ? "正答" : "判定"} ${escapeHtml(autoScoreText)}</span>
+        </summary>
+        <div class="historyDetail">
+          <p class="muted">${h.mode === "exam" ? "模試" : "暗記"} / ${new Date(h.createdAt).toLocaleString("ja-JP")}</p>
+          <p class="muted">${escapeHtml(h.summary || "")}</p>
+        </div>
+      </details>
     `;
         }
       )
