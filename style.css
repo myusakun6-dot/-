@@ -1357,6 +1357,50 @@ button.danger {
   gap: 8px;
 }
 
+.historyItem {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.historyItem > summary {
+  list-style: none;
+}
+
+.historyItem > summary::-webkit-details-marker {
+  display: none;
+}
+
+.historyTab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.historyTabTitle {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.historyTabScore {
+  color: #334155;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.historyDetail {
+  border-top: 1px solid var(--line);
+  padding: 10px 12px;
+}
+
+.historyDetail p {
+  margin: 0 0 6px;
+}
+
 .selfGradeControls {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

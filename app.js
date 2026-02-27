@@ -3020,6 +3020,8 @@ function finishExam(endReason = "手動終了") {
     examId: active ? active.id : "",
     examTitle: active ? active.title : "模試",
     summary: `${endReason} / 自動採点 ${score}/${autoTotal}問 / 点数 ${formatPointLabel(toAutoPoint(score, autoTotal))}`,
+    autoScore: score,
+    autoTotal,
     rows: rows.map((r, idx) => ({
       no: idx + 1,
       type: typeLabel(r.q.type),
@@ -3779,6 +3781,8 @@ function finishMemorize() {
     examId: source.type === "exam" ? source.sourceId : "",
     examTitle: source.title,
     summary: `暗記(${source.type === "exam" ? "模試" : "ジャンル"}) 回答 ${answeredCount}/${viewQuestions.length}問 自動判定 ${autoCorrect}/${autoTotal}問`,
+    autoScore: autoCorrect,
+    autoTotal,
     rows: viewQuestions.map((q, idx) => ({
       no: idx + 1,
       type: typeLabel(q.type),
@@ -3802,6 +3806,8 @@ function addHistoryEntry(entry) {
     examId: entry.examId || "",
     examTitle: entry.examTitle,
     summary: entry.summary,
+    autoScore: Number(entry.autoScore),
+    autoTotal: Number(entry.autoTotal),
     rows: entry.rows,
     createdAt: Date.now(),
   };
@@ -3809,6 +3815,18 @@ function addHistoryEntry(entry) {
   state.history = state.history.slice(0, 50);
   saveHistory();
   renderHistory();
+}
+
+function getHistoryAutoScoreText(h) {
+  const total = Number(h.autoTotal);
+  const score = Number(h.autoScore);
+  if (Number.isFinite(total) && total >= 0 && Number.isFinite(score) && score >= 0) {
+    return `${score}/${total}問`;
+  }
+  const judgedRows = (h.rows || []).filter((r) => r?.judge === "○" || r?.judge === "×");
+  if (!judgedRows.length) return "-";
+  const correct = judgedRows.filter((r) => r.judge === "○").length;
+  return `${correct}/${judgedRows.length}問`;
 }
 
 function renderHistory() {
@@ -3835,12 +3853,20 @@ function renderHistory() {
             `第${r.no}問 ${r.type} | 問題: ${escapeHtml(r.question)} | 回答: ${escapeHtml(r.userAnswer)} | 正答: ${escapeHtml(r.correctAnswer)} | 判定: ${r.judge}`
         )
         .join("<br />");
+      const autoScoreText = getHistoryAutoScoreText(h);
       return `
         <li>
-          <strong>${h.mode === "exam" ? "模試" : "暗記"} / ${escapeHtml(h.examTitle)}</strong><br />
-          ${escapeHtml(h.summary)}<br />
-          ${new Date(h.createdAt).toLocaleString("ja-JP")}<br />
-          ${detail}
+          <details class="historyItem">
+            <summary class="historyTab">
+              <span class="historyTabTitle">${escapeHtml(h.examTitle || "-")}</span>
+              <span class="historyTabScore">${h.mode === "exam" ? "正答" : "判定"} ${escapeHtml(autoScoreText)}</span>
+            </summary>
+            <div class="historyDetail">
+              <p class="muted">${h.mode === "exam" ? "模試" : "暗記"} / ${new Date(h.createdAt).toLocaleString("ja-JP")}</p>
+              <p class="muted">${escapeHtml(h.summary || "")}</p>
+              <p>${detail}</p>
+            </div>
+          </details>
         </li>
       `;
     })
@@ -4086,14 +4112,23 @@ function renderHomeDashboard() {
   } else {
     els.homeRecentHistoryList.innerHTML = recentHistory
       .map(
-        (h) => `
+        (h) => {
+          const autoScoreText = getHistoryAutoScoreText(h);
+          return `
       <li>
-        <div>
-          <strong>${h.mode === "exam" ? "模試" : "暗記"} / ${escapeHtml(h.examTitle || "-")}</strong>
-          <p class="muted">${escapeHtml(h.summary || "")}</p>
-        </div>
+        <details class="historyItem">
+          <summary class="historyTab">
+            <span class="historyTabTitle">${escapeHtml(h.examTitle || "-")}</span>
+            <span class="historyTabScore">${h.mode === "exam" ? "正答" : "判定"} ${escapeHtml(autoScoreText)}</span>
+          </summary>
+          <div class="historyDetail">
+            <p class="muted">${h.mode === "exam" ? "模試" : "暗記"} / ${new Date(h.createdAt).toLocaleString("ja-JP")}</p>
+            <p class="muted">${escapeHtml(h.summary || "")}</p>
+          </div>
+        </details>
       </li>
-    `
+    `;
+        }
       )
       .join("");
   }
