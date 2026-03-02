@@ -16,7 +16,7 @@
       /* Failsafe: if style.css fails to load, keep hidden elements hidden. */
       .hidden { display: none !important; }
     </style>
-    <link rel="stylesheet" href="style.css?v=20260224-75" />
+    <link rel="stylesheet" href="style.css?v=20260224-90" />
   </head>
   <body>
     <div class="backdrop"></div>
@@ -337,6 +337,9 @@
             <button id="finishMemorizeBtn" class="ghost">終了して結果表示</button>
           </div>
           <div id="memorizeList" class="memorizeList"></div>
+          <div class="actions">
+            <button id="finishMemorizeBtnBottom" class="ghost">終了して結果表示</button>
+          </div>
           <h3>暗記結果</h3>
           <p id="memorizeSummary">まだ開始していません。</p>
           <ul id="memorizeResultList"></ul>
@@ -414,7 +417,7 @@
 
     </main>
 
-    <script src="app.js?v=20260224-99" defer></script>
+    <script src="app.js?v=20260224-115" defer></script>
     <div id="toastContainer" class="toastContainer" aria-live="polite" aria-atomic="true"></div>
     <div id="finishConfirmModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="finishConfirmTitle">
       <div class="modalCard">
@@ -621,6 +624,17 @@
         </div>
         <p id="rewardedAdRemain" class="muted">残り 00:05</p>
         <button id="cancelRewardedAdBtn" class="ghost">視聴を中止する</button>
+      </div>
+    </div>
+    <div id="usageGateModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="usageGateTitle">
+      <div class="modalCard">
+        <h3 id="usageGateTitle">利用を続けるには選択が必要です</h3>
+        <p class="muted">広告を最後まで視聴すると24時間無料で利用できます。</p>
+        <div class="actions">
+          <button id="usageGateWatchAdBtn">広告で24時間無料で使う</button>
+          <button id="usageGateBuyMonthlyBtn" class="ghost">月額で広告オフ</button>
+          <button id="usageGateBuyYearlyBtn" class="ghost">年額で広告オフ</button>
+        </div>
       </div>
     </div>
     <div id="qrFullscreenModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="qrFullscreenTitle">

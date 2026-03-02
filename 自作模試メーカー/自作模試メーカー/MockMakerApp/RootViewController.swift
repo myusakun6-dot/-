@@ -23,7 +23,6 @@ final class RootViewController: UIViewController, WKNavigationDelegate {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-    title = "自作模試メーカー"
     view.backgroundColor = .systemBackground
     webView.navigationDelegate = self
     webView.translatesAutoresizingMaskIntoConstraints = false
@@ -38,10 +37,24 @@ final class RootViewController: UIViewController, WKNavigationDelegate {
   }
 
   private func loadLocalApp() {
-    guard let root = Bundle.main.resourceURL?.appendingPathComponent("web", isDirectory: true) else {
+    // Prefer bundled web/index.html. Fallback to top-level index.html if needed.
+    if let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "web"),
+       let root = Bundle.main.resourceURL?.appendingPathComponent("web", isDirectory: true) {
+      webView.loadFileURL(url, allowingReadAccessTo: root)
       return
     }
-    let indexURL = root.appendingPathComponent("index.html")
-    webView.loadFileURL(indexURL, allowingReadAccessTo: root)
+    if let url = Bundle.main.url(forResource: "index", withExtension: "html"),
+       let root = Bundle.main.resourceURL {
+      webView.loadFileURL(url, allowingReadAccessTo: root)
+      return
+    }
+
+    let html = """
+    <html><body style='font-family:-apple-system;padding:24px'>
+      <h2>web/index.html が見つかりません</h2>
+      <p>Xcodeで <code>web</code> フォルダの Target Membership を確認してください。</p>
+    </body></html>
+    """
+    webView.loadHTMLString(html, baseURL: nil)
   }
 }

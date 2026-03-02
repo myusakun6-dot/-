@@ -1,5 +1,11 @@
 import Foundation
+import UIKit
 import WebKit
+
+private struct NativePrintResult: Codable {
+  let success: Bool
+  let message: String
+}
 
 @MainActor
 final class WebAppBridge: NSObject, WKScriptMessageHandler {
@@ -29,6 +35,9 @@ final class WebAppBridge: NSObject, WKScriptMessageHandler {
       case "rewardedAd":
         let adResult = await RewardedAdService.shared.showRewardedAd()
         respondResolve(id: id, payload: adResult)
+      case "print":
+        let printResult = await showNativePrintDialog()
+        respondResolve(id: id, payload: printResult)
       default:
         respondReject(id: id, reason: "unknown_method")
       }
@@ -88,7 +97,68 @@ final class WebAppBridge: NSObject, WKScriptMessageHandler {
       window.MockMakerAds = {
         showRewardedAd: function() { return callNative('rewardedAd', {}); }
       };
+      window.MockMakerDevice = {
+        print: function() { return callNative('print', {}); }
+      };
     })();
     """
+  }
+
+  @MainActor
+  private func showNativePrintDialog() async -> NativePrintResult {
+    guard let webView else {
+      return NativePrintResult(success: false, message: "webview_missing")
+    }
+    guard UIPrintInteractionController.isPrintingAvailable else {
+      return NativePrintResult(success: false, message: "printing_unavailable")
+    }
+
+    let controller = UIPrintInteractionController.shared
+    let info = UIPrintInfo(dictionary: nil)
+    info.outputType = .general
+    info.jobName = "自作模試メーカー"
+    controller.printInfo = info
+    controller.showsPaperSelectionForLoadedPapers = true
+    controller.printFormatter = webView.viewPrintFormatter()
+
+    guard topViewController() != nil else {
+      return NativePrintResult(success: false, message: "presenter_missing")
+    }
+
+    return await withCheckedContinuation { continuation in
+      controller.present(animated: true) { _, completed, error in
+        if completed {
+          continuation.resume(returning: NativePrintResult(success: true, message: "completed"))
+          return
+        }
+        if let error {
+          continuation.resume(returning: NativePrintResult(success: false, message: "error_\(error.localizedDescription)"))
+          return
+        }
+        continuation.resume(returning: NativePrintResult(success: false, message: "cancelled"))
+      }
+    }
+  }
+
+  @MainActor
+  private func topViewController() -> UIViewController? {
+    let scene = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .first { $0.activationState == .foregroundActive }
+    let root = scene?.windows.first(where: { $0.isKeyWindow })?.rootViewController
+    return topMost(from: root)
+  }
+
+  private func topMost(from controller: UIViewController?) -> UIViewController? {
+    if let nav = controller as? UINavigationController {
+      return topMost(from: nav.visibleViewController)
+    }
+    if let tab = controller as? UITabBarController {
+      return topMost(from: tab.selectedViewController)
+    }
+    if let presented = controller?.presentedViewController {
+      return topMost(from: presented)
+    }
+    return controller
   }
 }

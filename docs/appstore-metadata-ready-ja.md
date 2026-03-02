@@ -37,8 +37,8 @@
 - Privacy Policy URL: https://myusakun6-dot.github.io/-/privacy.html
 
 ## 6. In-App Purchase IDs（要入力）
-- Monthly (100 JPY): com.matsuoyusaku.mockmaker.adfree.monthly
-- Yearly (900 JPY): com.matsuoyusaku.mockmaker.adfree.yearly
+- Monthly (100 JPY): com.mockmaker.adfree.monthly
+- Yearly (900 JPY): com.mockmaker.adfree.yearly
 
 ## 7. App Review Information（要入力）
 - Contact First Name: [要入力]

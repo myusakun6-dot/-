@@ -80,6 +80,11 @@ const state = {
     remainingSec: 0,
     resolve: null,
   },
+  adGate: {
+    timerId: null,
+    shownForCurrentFree: false,
+    running: false,
+  },
 };
 
 const els = {
@@ -239,6 +244,10 @@ const els = {
   rewardedAdProgressBar: document.getElementById("rewardedAdProgressBar"),
   rewardedAdRemain: document.getElementById("rewardedAdRemain"),
   cancelRewardedAdBtn: document.getElementById("cancelRewardedAdBtn"),
+  usageGateModal: document.getElementById("usageGateModal"),
+  usageGateWatchAdBtn: document.getElementById("usageGateWatchAdBtn"),
+  usageGateBuyMonthlyBtn: document.getElementById("usageGateBuyMonthlyBtn"),
+  usageGateBuyYearlyBtn: document.getElementById("usageGateBuyYearlyBtn"),
 
   scoreSummary: document.getElementById("scoreSummary"),
   resultList: document.getElementById("resultList"),
@@ -250,6 +259,7 @@ const els = {
   memorizeTargetSelect: document.getElementById("memorizeTargetSelect"),
   startMemorizeBtn: document.getElementById("startMemorizeBtn"),
   finishMemorizeBtn: document.getElementById("finishMemorizeBtn"),
+  finishMemorizeBtnBottom: document.getElementById("finishMemorizeBtnBottom"),
   memorizeList: document.getElementById("memorizeList"),
   memorizeSummary: document.getElementById("memorizeSummary"),
   memorizeResultList: document.getElementById("memorizeResultList"),
@@ -918,6 +928,36 @@ function capitalize(s) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
+function isTextEntryElement(el) {
+  if (!(el instanceof HTMLElement)) return false;
+  if (el instanceof HTMLTextAreaElement) return !el.readOnly && !el.disabled;
+  if (el instanceof HTMLInputElement) {
+    const type = (el.type || "text").toLowerCase();
+    const nonTextTypes = new Set([
+      "button",
+      "checkbox",
+      "radio",
+      "range",
+      "color",
+      "file",
+      "submit",
+      "reset",
+      "image",
+      "hidden",
+    ]);
+    return !el.readOnly && !el.disabled && !nonTextTypes.has(type);
+  }
+  return false;
+}
+
+function commitActiveInputIfNeeded(nextTarget) {
+  const active = document.activeElement;
+  if (!isTextEntryElement(active)) return;
+  if (active === nextTarget) return;
+  active.blur();
+  return true;
+}
+
 function handleArrowTabNavigation(event, tabButtons, activateFn) {
   if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
   const tabs = Array.from(tabButtons);
@@ -929,6 +969,26 @@ function handleArrowTabNavigation(event, tabButtons, activateFn) {
   tabs[next].focus();
   activateFn(tabs[next]);
 }
+
+document.addEventListener(
+  "pointerdown",
+  (event) => {
+    const rawTarget = event.target;
+    if (!(rawTarget instanceof Element)) return;
+    const nextTarget = rawTarget.closest("input, textarea, select, button, [role='button'], a, [tabindex]");
+    if (!(nextTarget instanceof HTMLElement)) return;
+    // Keep one-tap behavior when moving between text fields with IME composing.
+    if (!isTextEntryElement(nextTarget)) return;
+    const committed = commitActiveInputIfNeeded(nextTarget);
+    if (!committed) return;
+    requestAnimationFrame(() => {
+      if (document.activeElement !== nextTarget) {
+        nextTarget.focus({ preventScroll: true });
+      }
+    });
+  },
+  true
+);
 
 els.tabs.forEach((tab) => {
   tab.addEventListener("click", () => switchTab(tab.dataset.tab));
@@ -1117,6 +1177,9 @@ els.startMemorizeBtn.addEventListener("click", () => {
 els.finishMemorizeBtn.addEventListener("click", () => {
   runWithButton(els.finishMemorizeBtn, "集計中...", finishMemorize);
 });
+els.finishMemorizeBtnBottom?.addEventListener("click", () => {
+  runWithButton(els.finishMemorizeBtnBottom, "集計中...", finishMemorize);
+});
 els.memorizeSourceType?.addEventListener("change", () => {
   state.memorize.started = false;
   state.memorize.finished = false;
@@ -1216,15 +1279,7 @@ els.saveSettingsBtn.addEventListener("click", () => {
 });
 els.watchRewardedAdBtn.addEventListener("click", () => {
   runWithButton(els.watchRewardedAdBtn, "広告読み込み中...", async () => {
-    const completed = await showRewardedAd();
-    if (!completed) {
-      notify("広告の視聴が完了しなかったため、特典は付与されませんでした。", "warn");
-      return;
-    }
-    state.billing.rewardedAdUntil = Date.now() + 24 * 60 * 60 * 1000;
-    saveBillingState();
-    renderBilling();
-    notify("広告視聴で24時間広告なしを有効化しました", "success");
+    await startRewardedAdFor24h({ fromGate: false });
   });
 });
 els.buyAdfreeMonthlyBtn.addEventListener("click", () => {
@@ -1239,6 +1294,32 @@ els.buyAdfreeMonthlyBtn.addEventListener("click", () => {
 });
 els.buyAdfreeYearlyBtn.addEventListener("click", () => {
   runWithButton(els.buyAdfreeYearlyBtn, "購入処理中...", async () => {
+    const ok = await purchaseAdfreePlan({
+      productID: "com.mockmaker.adfree.yearly",
+      fallbackDays: 365,
+      successMessage: "広告オフ（年額）を有効化しました",
+    });
+    if (!ok) notify("購入を完了できませんでした。通信状態を確認し、App Storeにサインインした状態で再試行してください。", "warn");
+  });
+});
+els.usageGateWatchAdBtn?.addEventListener("click", () => {
+  runWithButton(els.usageGateWatchAdBtn, "広告読み込み中...", async () => {
+    closeUsageGateModal();
+    await startRewardedAdFor24h({ fromGate: true, strictGateLoop: true });
+  });
+});
+els.usageGateBuyMonthlyBtn?.addEventListener("click", () => {
+  runWithButton(els.usageGateBuyMonthlyBtn, "購入処理中...", async () => {
+    const ok = await purchaseAdfreePlan({
+      productID: "com.mockmaker.adfree.monthly",
+      fallbackDays: 30,
+      successMessage: "広告オフ（月額）を有効化しました",
+    });
+    if (!ok) notify("購入を完了できませんでした。通信状態を確認し、App Storeにサインインした状態で再試行してください。", "warn");
+  });
+});
+els.usageGateBuyYearlyBtn?.addEventListener("click", () => {
+  runWithButton(els.usageGateBuyYearlyBtn, "購入処理中...", async () => {
     const ok = await purchaseAdfreePlan({
       productID: "com.mockmaker.adfree.yearly",
       fallbackDays: 365,
@@ -3658,6 +3739,15 @@ els.printBtn.addEventListener("click", async () => {
     restored = true;
     document.title = originalTitle;
   };
+  const nativePrinter = window.MockMakerDevice;
+  if (nativePrinter && typeof nativePrinter.print === "function") {
+    const result = await nativePrinter.print();
+    if (!result || result.success !== true) {
+      notify("印刷ダイアログを開けませんでした。もう一度お試しください。", "warn");
+    }
+    return;
+  }
+
   document.title = "";
   window.addEventListener("afterprint", restoreTitle, { once: true });
   window.print();
@@ -4271,6 +4361,12 @@ function renderBilling() {
   els.buyAdfreeMonthlyBtn.disabled = false;
   els.buyAdfreeYearlyBtn.disabled = false;
   renderAdBanner();
+  if (tier === "free") {
+    openUsageGateModal();
+  } else {
+    closeUsageGateModal();
+  }
+  scheduleRewardedAdGate();
 }
 
 function renderAdBanner() {
@@ -4280,14 +4376,49 @@ function renderAdBanner() {
 }
 
 function showRewardedAd() {
-  const provider = window.MockMakerAds;
-  if (provider && typeof provider.showRewardedAd === "function") {
-    return provider
-      .showRewardedAd()
-      .then((result) => Boolean(result?.completed ?? result === true))
-      .catch(() => false);
-  }
+  // Always use built-in modal flow so "24時間付与" happens only after explicit watch completion.
   return showBuiltInRewardedAdFallback();
+}
+
+function openUsageGateModal(force = false) {
+  if (!els.usageGateModal) return;
+  if (!force && state.adGate.running) return;
+  if (els.usageGateModal.classList.contains("hidden")) {
+    openModal(els.usageGateModal, els.usageGateWatchAdBtn || els.usageGateBuyMonthlyBtn);
+  }
+}
+
+function closeUsageGateModal() {
+  if (!els.usageGateModal || els.usageGateModal.classList.contains("hidden")) return;
+  closeModalBase(els.usageGateModal);
+}
+
+async function startRewardedAdFor24h({ fromGate = false, strictGateLoop = false } = {}) {
+  let attempts = 0;
+  while (true) {
+    const completed = await showRewardedAd();
+    if (completed) {
+      state.billing.rewardedAdUntil = Date.now() + 24 * 60 * 60 * 1000;
+      saveBillingState();
+      renderBilling();
+      notify("広告視聴で24時間広告なしを有効化しました", "success");
+      return true;
+    }
+
+    notify("広告の視聴が完了しなかったため、特典は付与されませんでした。", "warn");
+    if (!strictGateLoop) {
+      if (fromGate) openUsageGateModal(true);
+      return false;
+    }
+
+    if (getBillingTier() !== "free") return false;
+    attempts += 1;
+    if (attempts >= 20) {
+      openUsageGateModal(true);
+      return false;
+    }
+    notify("24時間無料を使うには、広告を最後まで視聴してください。", "info", 1800);
+  }
 }
 
 function showBuiltInRewardedAdFallback() {
@@ -4333,6 +4464,55 @@ function cancelRewardedAdPlayback() {
   const done = state.adPlayback.resolve;
   state.adPlayback.resolve = null;
   if (done) done(false);
+}
+
+function clearAdGateTimer() {
+  if (state.adGate.timerId) {
+    clearTimeout(state.adGate.timerId);
+    state.adGate.timerId = null;
+  }
+}
+
+async function maybeAutoStartRewardedAdGate(trigger = "startup") {
+  if (state.adGate.running) return;
+  if (getBillingTier() !== "free") return;
+  if (document.hidden) return;
+  if (state.adGate.shownForCurrentFree) return;
+
+  state.adGate.shownForCurrentFree = true;
+  state.adGate.running = true;
+  closeUsageGateModal();
+  notify("この広告を見ると24時間広告なしで利用できます。", "info", 2200);
+  const completed = await startRewardedAdFor24h({ fromGate: true });
+  state.adGate.running = false;
+  if (!completed && trigger !== "periodic") {
+    openUsageGateModal(true);
+    notify("広告を最後まで視聴すると24時間広告なしで利用できます。", "info", 2600);
+  }
+  scheduleRewardedAdGate();
+}
+
+function scheduleRewardedAdGate() {
+  clearAdGateTimer();
+  const tier = getBillingTier();
+  if (tier === "adfree") {
+    state.adGate.shownForCurrentFree = false;
+    return;
+  }
+  if (tier === "rewarded") {
+    state.adGate.shownForCurrentFree = false;
+    const delay = Math.max(1000, Number(state.billing.rewardedAdUntil || 0) - Date.now() + 500);
+    state.adGate.timerId = setTimeout(() => {
+      renderBilling();
+      maybeAutoStartRewardedAdGate("expired");
+    }, delay);
+    return;
+  }
+  if (!state.adGate.shownForCurrentFree) {
+    state.adGate.timerId = setTimeout(() => {
+      maybeAutoStartRewardedAdGate("startup");
+    }, 800);
+  }
 }
 
 function renderExamProgress() {
@@ -4810,6 +4990,13 @@ tryImportSharedLinkFromHash();
 
 window.addEventListener("beforeunload", () => {
   saveExamSessionState();
+  clearAdGateTimer();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    maybeAutoStartRewardedAdGate("resume");
+  }
 });
 
 if ("serviceWorker" in navigator) {
