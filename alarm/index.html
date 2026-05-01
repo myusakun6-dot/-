@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>シンプルアラーム</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>アラーム</h1>
+
+    <div class="clock" id="clock">00:00:00</div>
+
+    <div class="alarm-form">
+      <label for="alarm-time">アラーム時刻</label>
+      <input type="time" id="alarm-time">
+      <button id="set-btn">セット</button>
+      <button id="cancel-btn" disabled>キャンセル</button>
+    </div>
+
+    <div class="status" id="status">アラームは設定されていません</div>
+
+    <audio id="alarm-sound" loop>
+      <source src="data:audio/wav;base64," type="audio/wav">
+    </audio>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
